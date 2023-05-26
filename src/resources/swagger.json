@@ -1,0 +1,409 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "HealthFuel365",
+    "description": "Service for HealthFuel365",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "user",
+      "description": "Operations about the user"
+    },
+    {
+      "name": "product",
+      "description": "Operations about products"
+    }
+  ],
+  "paths": {
+    "/user/": {
+      "description": "",
+      "post": {
+        "tags": ["user"],
+        "summary": "Login Endpoint",
+        "description": "Endpoint for user authentication",
+        "operationId": "/user/",
+        "requestBody": {
+          "description": "Optional description in *Markdown*",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/user"
+              },
+              "example": {
+                "username": "testUsername",
+                "password": "wrongPassword123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlZmVlMThlN",
+                  "expiresIn": 86400
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Wrong password"
+          },
+          "404": {
+            "description": "Username not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Register Endpoint",
+        "description": "Endpoint for user registration",
+        "operationId": "/user/register",
+        "requestBody": {
+          "description": "Optional description in *Markdown*",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/user"
+              },
+              "example": {
+                "username": "testUsername",
+                "password": "password123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlZmVlMThlN",
+                  "message": "User was created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "delete": {
+        "tags": ["user"],
+        "summary": "User Delete Endpoint",
+        "description": "Endpoint to delete a user account",
+        "operationId": "/user/{:id}",
+        "requestBody": {
+          "description": "Optional description in *Markdown*",
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User deleted successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/product/": {
+      "get": {
+        "tags": ["product"],
+        "summary": "Fetch Products Endpoint",
+        "description": "Endpoint for receiving products by Name",
+        "operationId": "/product/",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "products": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/product/{ean}": {
+      "get": {
+        "tags": ["product"],
+        "summary": "Fetch Products By Ean Endpoint",
+        "description": "Endpoint for receiving products by Ean",
+        "operationId": "/product/:ean",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "products": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/product/{id}": {
+      "delete": {
+        "tags": ["product"],
+        "summary": "Delete Product By ID",
+        "description": "Endpoint for deleting products by ID",
+        "operationId": "/product/:delete",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "products": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/product/add": {
+      "post": {
+        "tags": ["product"],
+        "summary": "Add Products Endpoint",
+        "description": "Endpoint for adding products to the database",
+        "operationId": "/product/add",
+        "requestBody": {
+          "description": "Optional description in *Markdown*",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/product"
+              },
+              "example": {
+                "product": {
+                  "Names": ["Avocado", "Bio Avocado"],
+                  "nutriments": {
+                    "energy_kcal": 200,
+                    "energy_kcal_100g": 200
+                  },
+                  "nutriScore": "A",
+                  "productName": "Avocado",
+                  "productNameDE": "Avocado"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "products": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/product/update": {
+      "post": {
+        "tags": ["product"],
+        "summary": "Update Products Endpoint",
+        "description": "Endpoint for updating products to the database",
+        "operationId": "/product/update",
+        "requestBody": {
+          "description": "Optional description in *Markdown*",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/product"
+              },
+              "example": {
+                "product": {
+                  "Names": ["Avocado", "Bio Avocado"],
+                  "nutriments": {
+                    "energy_kcal": 200,
+                    "energy_kcal_100g": 200
+                  },
+                  "nutriScore": "A",
+                  "productName": "Avocado",
+                  "productNameDE": "Avocado"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "products": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "user": {
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "productInformation": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "ignored": {
+            "type": "boolean"
+          },
+          "products": {
+            "type": "product[]"
+          }
+        }
+      },
+      "product": {
+        "properties": {
+          "ean": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "string[]"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "ingredientsText": {
+            "type": "string"
+          },
+          "ingredientsTextDE": {
+            "type": "string"
+          },
+          "nutriments": {
+            "type": "nutriments"
+          },
+          "nutriScore": {
+            "type": "string"
+          },
+          "nutriScoreScore": {
+            "type": "number"
+          },
+          "nutriscoreData": {
+            "type": "nutriScoreData"
+          },
+          "quantity": {
+            "type": "string"
+          },
+          "nutrientLevels": {
+            "type": "nutrientLevels"
+          },
+          "brands": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "productNameDE": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

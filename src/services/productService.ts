@@ -1,20 +1,4 @@
-import {
-  imageServer,
-  imageServiceURI,
-  openFoodFactsProductUri,
-} from "../config";
 import ProductSchema, { ProductInterface } from "../models/product";
-
-export const resolveProduct = async (
-  productname: string
-): Promise<ProductInterface[] | null> => {
-  const product = await ProductSchema.find({
-    receiptNames: {
-      $all: [productname],
-    },
-  });
-  return product;
-};
 
 export const findProductByName = async (
   text: string

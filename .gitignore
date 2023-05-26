@@ -1,0 +1,8 @@
+dist/
+idea/
+# Optional npm cache directory
+.npm
+# Dependency directories
+node_modules/
+jspm_packages/
+package-lock.json

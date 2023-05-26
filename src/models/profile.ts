@@ -1,22 +1,38 @@
 import * as mongoose from "mongoose";
+import { EaterType } from "./types";
 
 export interface ProfileInterface extends mongoose.Document {
-  goal: string;
-  dietaryPreference: string;
-  typeOfEater: string;
+  losingWeightAsGoal: boolean;
+  lowInFat: boolean;
+  lowInSugar: boolean;
+  lowInSalt: boolean;
+  typeOfEater: EaterType;
+  nutriPreference: string[];
 }
 
 export const ProfileSchema = new mongoose.Schema({
-  goal: {
-    type: String,
+  losingWeightAsGoal: {
+    type: Boolean,
     required: true,
   },
-  dietaryPrederence: {
-    type: String,
+  lowInFat: {
+    type: Boolean,
+    required: true,
+  },
+  lowInSugar: {
+    type: Boolean,
     required: true,
   },
   typeOfEater: {
-    type: String,
+    type: EaterType,
+    required: true,
+  },
+  lowInSalt: {
+    type: Boolean,
+    required: true,
+  },
+  nutriPreference: {
+    type: [String],
     required: true,
   },
 });

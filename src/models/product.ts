@@ -2,14 +2,13 @@ import * as mongoose from "mongoose";
 import {} from "./types";
 
 export interface ProductInterface extends mongoose.Document {
-  ean: string;
   categories: string[];
   imageUrl: string | undefined;
   ingredientsText?: string;
   ingredientsTextDE?: string; //may not be necessary
   nutriScore: string;
   nutriScoreScore?: number; //used to calculate nutri-score
-  quantity?: string;
+  quantity?: number;
   brands?: string;
   labels?: string;
   categories_tags?: string[];
@@ -19,14 +18,6 @@ export interface ProductInterface extends mongoose.Document {
 
 export const ProductSchema = new mongoose.Schema({
   // used to create collections, generated at the time request processing
-  ean: {
-    type: String,
-    required: false,
-  },
-  receiptNames: {
-    type: [String],
-    required: true,
-  },
   categories: {
     type: [String],
     required: false,
@@ -47,24 +38,8 @@ export const ProductSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  nutriments: {
-    type: Map,
-    required: true,
-  },
-  ecoscoreGrade: {
-    type: String,
-    required: false,
-  },
-  novaGroup: {
-    type: Number,
-    required: false,
-  },
   nutriScore: {
     type: String,
-    required: false,
-  },
-  nutriscoreData: {
-    type: Map,
     required: false,
   },
   nutriScoreScore: {
@@ -72,7 +47,7 @@ export const ProductSchema = new mongoose.Schema({
     required: false,
   },
   quantity: {
-    type: String,
+    type: Number,
     required: false,
   },
   nutrientLevels: {
