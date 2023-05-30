@@ -7,17 +7,17 @@ import { checkAuthentication } from "../middleware/middleware";
  */
 const productRoutes = express.Router();
 
-productRoutes.post("/add", checkAuthentication, ProductController.addProduct);
+productRoutes.post("/add", checkAuthentication, ProductController.addProduct); //for admin pannel
 productRoutes.post(
   "/update/:id",
   checkAuthentication,
   ProductController.updateProduct
-);
+); //for admin pannel
 productRoutes.delete(
   "/:id",
   checkAuthentication,
   ProductController.deleteProduct
-);
+); //for admin pannel
 productRoutes.get("/", ProductController.getProductsByName);
 
 export default productRoutes;

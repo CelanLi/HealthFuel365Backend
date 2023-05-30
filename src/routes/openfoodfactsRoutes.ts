@@ -4,6 +4,6 @@ import { checkAuthentication } from "../middleware/middleware";
 
 const openfoodfactsRoutes = express.Router();
 
-openfoodfactsRoutes.get("/:code", openfoodfactsController.findProduct);
+openfoodfactsRoutes.get("/:id", openfoodfactsController.findProduct);
 
 export default openfoodfactsRoutes;
