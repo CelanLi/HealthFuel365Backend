@@ -1,68 +1,65 @@
 import * as mongoose from "mongoose";
 import {} from "./types";
 
-export interface ProductInterface extends mongoose.Document {
+export interface ProductDetailInterface extends mongoose.Document {
   productID: string;
-  category: string;
-  imageUrl: string | undefined;
-  ingredientsText?: string;
-  nutriScore: string;
-  capacity?: number;
-  brands?: string;
-  productPrice?: number;
-
-  productName: string;
+  fatLevel?: string;
+  sugarLevel?: string | undefined;
+  saltLevel?: string;
+  suagr?: number;
+  fat?: number;
+  salt?: string;
+  productDescription: string;
 }
 
-export const ProductSchema = new mongoose.Schema({
+export const ProductDetailSchema = new mongoose.Schema({
   // used to create collections, generated at the time request processing
   productID: {
     type: String,
     required: true,
   },
-  category: {
+  fatLevel: {
     type: String,
     required: false,
   },
-  imageUrl: {
+  suagrLevel: {
     type: String,
     required: false,
   },
-  ingredientsText: {
+  saltLevel: {
     type: String,
     required: false,
   },
-  nutriScore: {
+  fat: {
     type: String,
     required: false,
   },
-  capacity: {
+  sugar: {
     type: Number,
     required: false,
   },
-  brand: {
+  salt: {
     type: String,
     required: false,
   },
-  productPrice: {
-    type: Number,
-    required: false,
-  },
-  productName: {
+  productDescription: {
     type: String,
     required: false,
   },
 });
 /* This maps the internal id of the product
  created by mongoose to the field id when accessed via to JSON */
-ProductSchema.virtual("id").get(function () {
+ProductDetailSchema.virtual("id").get(function () {
   // @ts-ignore
   // eslint-disable-next-line no-underscore-dangle
   return this._id.toHexString();
 });
 
-ProductSchema.set("toJSON", {
+ProductDetailSchema.set("toJSON", {
   virtuals: true,
 });
 
-export default mongoose.model<ProductInterface>("Product", ProductSchema);
+export default mongoose.model<ProductDetailInterface>(
+  "ProductDetail",
+  ProductDetailSchema
+);

@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { badRequestErrorMessage, internalServerErrorMessage } from "../config";
 import ProductSchema from "../models/product";
-import { findProductByName } from "../services/productService";
+import {
+  findProductByName,
+  findProductByCategory,
+} from "../services/productService";
 
 export async function addProduct(req: Request, res: Response) {
   const { product } = req.body;
@@ -47,6 +50,21 @@ export async function getProductsByName(req: Request, res: Response) {
   }
 }
 
+export async function getProductByCategory(req: Request, res: Response) {
+  const { category } = req.query;
+  try {
+    if (!category || typeof category != "string") {
+      return res
+        .status(400)
+        .json(badRequestErrorMessage("Missing query parameter category"));
+    }
+
+    const products = await findProductByCategory(category);
+    return res.status(200).send(products);
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
 export async function updateProduct(req: Request, res: Response) {
   const { id } = req.params;
   const { product } = req.body;
