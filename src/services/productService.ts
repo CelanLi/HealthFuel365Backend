@@ -26,19 +26,15 @@ export const findProductByName = async (
   return products;
 };
 
-export const findAllProducts = async (): Promise<ProductInterface[] | null> => {
-  // search database for product which start with text (case insensitive)
-  let products = await ProductSchema.find();
-  console.log("find all products");
-  console.log(products);
-  return products;
-};
-
 export const findProductByCategory = async (
   category: string
 ): Promise<ProductInterface[] | null> => {
   const products = await ProductSchema.find({
     category: category,
   });
+  return products;
+};
+export const findAllProducts = async (): Promise<ProductInterface[] | null> => {
+  const products = await ProductSchema.find();
   return products;
 };
