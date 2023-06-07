@@ -16,7 +16,7 @@ const app = express();
 app.use(allowCrossDomain);
 app.use(express.json());
 app.use("/product", productRoutes);
-app.use("/product-detail", productDetailRoutes);
+app.use("/product/detail", productDetailRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
