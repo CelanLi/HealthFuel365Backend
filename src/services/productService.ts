@@ -38,3 +38,11 @@ export const findAllProducts = async (): Promise<ProductInterface[] | null> => {
   const products = await ProductSchema.find();
   return products;
 };
+export const findProductByID = async (
+  id: string
+): Promise<ProductInterface | null> => {
+  const product = await ProductSchema.findOne({
+    productID: id,
+  });
+  return product;
+};

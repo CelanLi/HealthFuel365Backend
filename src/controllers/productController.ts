@@ -55,7 +55,6 @@ export async function getProductsByName(req: Request, res: Response) {
 export async function getAllProducts(req: Request, res: Response) {
   try {
     const products = await findAllProducts();
-    console.log(JSON.stringify(products) + "----products in controller");
     return res.status(200).send(products);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);

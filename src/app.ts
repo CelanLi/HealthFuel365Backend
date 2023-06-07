@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import * as Constants from "./config";
 import productRoutes from "./routes/productRoutes";
+import productDetailRoutes from "./routes/productDetailRoutes";
 import { allowCrossDomain } from "./middleware/middleware";
 mongoose.connect(Constants.mongoURI).catch((err) => {
   // eslint-disable-next-line no-console
@@ -15,6 +16,7 @@ const app = express();
 app.use(allowCrossDomain);
 app.use(express.json());
 app.use("/product", productRoutes);
+app.use("/product-detail", productDetailRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
