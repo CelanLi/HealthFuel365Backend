@@ -1,14 +1,28 @@
 import ProductSchema, { ProductInterface } from "../models/product";
 
 export const findProductByName = async (
-  text: string
+  text: string,
+  selectedSort: string
 ): Promise<ProductInterface[] | null> => {
   // search database for product which includes text
   const regexIncludes = RegExp(".*" + text + ".*", "i");
-  let productsIncludes = await ProductSchema.find({
-    productName: regexIncludes,
-  });
-  return productsIncludes;
+  if (selectedSort === "1") {
+    return await ProductSchema.find({
+      productName: regexIncludes,
+    }).sort({ nutriScore: 1 });
+  } else if (selectedSort === "2") {
+    return await ProductSchema.find({
+      productName: regexIncludes,
+    }).sort({ productName: 1 });
+  } else if (selectedSort === "3") {
+    return await ProductSchema.find({
+      productName: regexIncludes,
+    }).sort({ productPrice: 1 });
+  } else {
+    return await ProductSchema.find({
+      productName: regexIncludes,
+    }).sort({ productPrice: -1 });
+  }
 };
 
 export const findProductByCategory = async (
