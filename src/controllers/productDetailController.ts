@@ -5,7 +5,6 @@ export async function getDetailByID(req: Request, res: Response) {
   const { id } = req.params;
   try {
     const productDetail = await findDetailByID(id);
-    console.log(JSON.stringify(productDetail) + "----products in controller");
     return res.status(200).send(productDetail);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);

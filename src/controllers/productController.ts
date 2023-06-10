@@ -5,6 +5,10 @@ import {
   findProductByName,
   findProductByCategory,
   findAllProducts,
+  sortProductsByName,
+  sortProductsByNutriscore,
+  sortProductsPriceDescending,
+  sortProductsPriceAscending,
 } from "../services/productService";
 import { json } from "body-parser";
 
@@ -54,12 +58,46 @@ export async function getProductsByName(req: Request, res: Response) {
 
 export async function getAllProducts(req: Request, res: Response) {
   try {
-    const products = await findAllProducts();
+    const { selectedSort } = req.params;
+    const products = await findAllProducts(selectedSort);
     return res.status(200).send(products);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
+// export async function sortByName(req: Request, res: Response) {
+//   try {
+//     const products = await sortProductsByName();
+//     console.log(JSON.stringify(products) + "sort by name");
+//     return res.status(200).send(products);
+//   } catch (error) {
+//     return res.status(500).json(internalServerErrorMessage);
+//   }
+// }
+// export async function sortByNutriscore(req: Request, res: Response) {
+//   try {
+//     const products = await sortProductsByNutriscore();
+//     return res.status(200).send(products);
+//   } catch (error) {
+//     return res.status(500).json(internalServerErrorMessage);
+//   }
+// }
+// export async function sortPriceAscending(req: Request, res: Response) {
+//   try {
+//     const products = await sortProductsPriceAscending();
+//     return res.status(200).send(products);
+//   } catch (error) {
+//     return res.status(500).json(internalServerErrorMessage);
+//   }
+// }
+// export async function sortPriceDescending(req: Request, res: Response) {
+//   try {
+//     const products = await sortProductsPriceDescending();
+//     return res.status(200).send(products);
+//   } catch (error) {
+//     return res.status(500).json(internalServerErrorMessage);
+//   }
+// }
 
 export async function getProductByCategory(req: Request, res: Response) {
   const { category } = req.query;

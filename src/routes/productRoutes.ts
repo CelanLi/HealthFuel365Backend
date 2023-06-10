@@ -18,6 +18,6 @@ productRoutes.delete(
   checkAuthentication,
   ProductController.deleteProduct
 ); //for admin pannel
-productRoutes.get("/", ProductController.getAllProducts);
+productRoutes.get("/:selectedSort", ProductController.getAllProducts);
 
 export default productRoutes;
