@@ -41,15 +41,14 @@ export async function addProduct(req: Request, res: Response) {
 }
 
 export async function getProductsByName(req: Request, res: Response) {
-  const { name } = req.query;
+  const { search } = req.query;
   try {
-    if (!name || typeof name != "string") {
+    if (!search || typeof search != "string") {
       return res
         .status(400)
         .json(badRequestErrorMessage("Missing query parameter name"));
     }
-
-    const products = await findProductByName(name);
+    const products = await findProductByName(search);
     return res.status(200).send(products);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
