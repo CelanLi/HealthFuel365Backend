@@ -18,6 +18,17 @@ productRoutes.delete(
   checkAuthentication,
   ProductController.deleteProduct
 ); //for admin pannel
-productRoutes.get("/", ProductController.getAllProducts);
+
+productRoutes.get("/", (req, res) => {
+  const { search } = req.query;
+  if (search) {
+    ProductController.getProductsByName(req,res);
+    console.log("by name: "+ search);
+  } else {
+    ProductController.getAllProducts(req,res);
+    console.log("all");
+  }
+});
+
 
 export default productRoutes;
