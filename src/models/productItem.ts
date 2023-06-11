@@ -16,23 +16,19 @@ export const ProductItemSchema = new mongoose.Schema({
   product: {
     type: [
       {
-        categories: {
-          type: [String],
+        productID: {
+          type: String,
+          required: true,
+        },
+        category: {
+          type: String,
           required: false,
         },
         imageUrl: {
           type: String,
           required: false,
         },
-        ingredients: {
-          type: [Map],
-          required: false,
-        },
         ingredientsText: {
-          type: String,
-          required: false,
-        },
-        ingredientsTextDE: {
           type: String,
           required: false,
         },
@@ -40,42 +36,22 @@ export const ProductItemSchema = new mongoose.Schema({
           type: String,
           required: false,
         },
-        nutriScoreScore: {
+        capacity: {
           type: Number,
           required: false,
         },
-        quantity: {
-          type: Number,
-          required: false,
-        },
-        nutrientLevels: {
-          type: Map,
-          required: false,
-        },
-        brands: {
-          type: String,
-          required: false,
-        },
-        labels: {
+        productBrand: {
           type: String,
           required: false,
         },
         productPrice: {
-          type: String,
+          type: Number,
           required: false,
         },
         productName: {
           type: String,
           required: false,
-        },
-        categories_tags: {
-          type: [String],
-          required: false,
-        },
-        productNameDE: {
-          type: String,
-          required: false,
-        },
+        },  
       },
     ],
     required: true,
@@ -98,3 +74,5 @@ ProductItemSchema.set("toJSON", {
 });
 
 export default mongoose.model<ProductItem>("ProductItem", ProductItemSchema);
+
+ 

@@ -45,4 +45,6 @@ ShoppingCartSchema.set("toJSON", {
 });
 
 //export user schema
-export default mongoose.model<ShoppingCart>("PromoCode", ShoppingCartSchema);
+export default mongoose.model<ShoppingCart>("ShoppingCart", ShoppingCartSchema);
+
+ 
