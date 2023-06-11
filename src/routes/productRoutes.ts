@@ -19,9 +19,7 @@ productRoutes.delete(
   ProductController.deleteProduct
 ); //for admin pannel
 
-productRoutes.get("/:selectedSort", ProductController.getAllProducts);
-
-productRoutes.get("/", (req, res) => {
+productRoutes.get("/:selectedSort", (req, res) => {
   const { search } = req.query;
   if (search) {
     ProductController.getProductsByName(req, res);

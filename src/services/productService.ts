@@ -7,18 +7,22 @@ export const findProductByName = async (
   // search database for product which includes text
   const regexIncludes = RegExp(".*" + text + ".*", "i");
   if (selectedSort === "1") {
+    console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
       productName: regexIncludes,
     }).sort({ nutriScore: 1 });
   } else if (selectedSort === "2") {
+    console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
       productName: regexIncludes,
     }).sort({ productName: 1 });
   } else if (selectedSort === "3") {
+    console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
       productName: regexIncludes,
     }).sort({ productPrice: 1 });
   } else {
+    console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
       productName: regexIncludes,
     }).sort({ productPrice: -1 });

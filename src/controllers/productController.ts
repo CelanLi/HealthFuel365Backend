@@ -5,13 +5,7 @@ import {
   findProductByName,
   findProductByCategory,
   findAllProducts,
-  sortProductsByName,
-  sortProductsByNutriscore,
-  sortProductsPriceDescending,
-  sortProductsPriceAscending,
 } from "../services/productService";
-import { json } from "body-parser";
-
 export async function addProduct(req: Request, res: Response) {
   const { product } = req.body;
   try {
@@ -43,6 +37,7 @@ export async function addProduct(req: Request, res: Response) {
 export async function getProductsByName(req: Request, res: Response) {
   const { search } = req.query;
   const { selectedSort } = req.params;
+  console.log(selectedSort + "controller");
   try {
     if (!search || typeof search != "string") {
       return res

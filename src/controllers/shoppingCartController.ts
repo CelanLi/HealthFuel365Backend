@@ -1,17 +1,8 @@
 import { Request, Response } from "express";
-import ShoppingCartSchema from "../models/shoppingcart";
-import bcrypt, { compareSync } from "bcrypt";
-import jwt from "jsonwebtoken";
-import {
-  badRequestErrorMessage,
-  internalServerErrorMessage,
-  JwtSecret,
-} from "../config";
-import ProfileSchema from "../models/profile";
-import { json } from "body-parser";
+import { badRequestErrorMessage, internalServerErrorMessage } from "../config";
 import { getShoppingCart } from "../services/shoppingCartService";
 
-export async function getShoppingCartList(req: Request, res: Response) { 
+export async function getShoppingCartList(req: Request, res: Response) {
   const { shoppingCartID } = req.query;
   try {
     if (!shoppingCartID || typeof shoppingCartID != "string") {
