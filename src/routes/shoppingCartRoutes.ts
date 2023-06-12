@@ -5,13 +5,13 @@ import { checkAuthentication } from "../middleware/middleware";
 /**
  * router refers to http://localhost:8081/user/...route
  */
-const userRoutes = express.Router();
+const shoppingCartRoutes = express.Router();
  
 
-userRoutes.get("/shoppingCartList", ShoppingCartController.getShoppingCartList);
-userRoutes.post("/deleteProductItem", checkAuthentication, ShoppingCartController.deleteProductItem);
-userRoutes.post("/changeProductCount", checkAuthentication, ShoppingCartController.changeProductCount);
+shoppingCartRoutes.get("/shoppingCartList", ShoppingCartController.getShoppingCartList);
+shoppingCartRoutes.post("/deleteProductItem", checkAuthentication, ShoppingCartController.deleteProductItem);
+shoppingCartRoutes.post("/changeProductCount", checkAuthentication, ShoppingCartController.changeProductCount);
 // userRoutes.post("/", ShoppingCartController.login);
 // userRoutes.delete("/:id", checkAuthentication, ShoppingCartController.deleteUser);
 
-export default userRoutes;
+export default shoppingCartRoutes;
