@@ -6,7 +6,8 @@ export interface ProfileInterface extends mongoose.Document {
   lowInFat: boolean;
   lowInSugar: boolean;
   lowInSalt: boolean;
-  typeOfEater: EaterType;
+  // typeOfEater: EaterType;
+  typeOfEater: string;
   nutriPreference: string[];
 }
 
@@ -24,7 +25,8 @@ export const ProfileSchema = new mongoose.Schema({
     required: true,
   },
   typeOfEater: {
-    type: EaterType,
+    // type: EaterType,
+    type:String,
     required: true,
   },
   lowInSalt: {

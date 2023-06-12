@@ -6,7 +6,9 @@ import { internalServerErrorMessage, JwtSecret } from "../config";
 import ProfileSchema from "../models/profile";
 
 export async function register(req: Request, res: Response) {
-  const newUser = new Userschema(req.body.user);
+  console.log("789",req.body)
+  const newUser = new Userschema(req.body);
+
   if (!newUser) {
     return res.status(400).json({
       error: "Bad Request",
@@ -39,8 +41,14 @@ export async function register(req: Request, res: Response) {
       userID: user._id,
       name: undefined,
       goal: undefined,
-      typeOfEater: undefined,
-      dietaryPreferences: undefined,
+      typeOfEater: "Omnivore",
+      // dietaryPreferences: undefined,
+      losingWeightAsGoal: false,
+      lowInFat: false,
+      lowInSugar: false,
+      lowInSalt: false,
+      nutriPreference: ['A','B','C','D','E']
+
     });
 
     const token = jwt.sign(
@@ -61,6 +69,7 @@ export async function register(req: Request, res: Response) {
 }
 
 export async function login(req: Request, res: Response) {
+  console.log("123",req.body)
   const { username, password } = req.body;
   //check for correct params
   if (!username || !password) {
@@ -96,7 +105,7 @@ export async function login(req: Request, res: Response) {
       }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       token: token,
       expiresIn: expirationTime,
     });

@@ -9,7 +9,7 @@ const userRoutes = express.Router();
 
 userRoutes.get("/", checkAuthentication, UserController.getUser);
 userRoutes.post("/register", UserController.register);
-userRoutes.post("/", UserController.login);
+userRoutes.post("/login", UserController.login);
 userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
 
 export default userRoutes;

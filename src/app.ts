@@ -4,6 +4,7 @@ import * as Constants from "./config";
 import productRoutes from "./routes/productRoutes";
 import productDetailRoutes from "./routes/productDetailRoutes";
 import shoppingCartRoutes from "./routes/shoppingCartRoutes";
+import userRoutes from "./routes/userRoutes";
 import { allowCrossDomain } from "./middleware/middleware";
 mongoose.connect(Constants.mongoURI).catch((err) => {
   // eslint-disable-next-line no-console
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use("/product", productRoutes);
 app.use("/product/detail", productDetailRoutes);
 app.use("/shoppingcart", shoppingCartRoutes);
+app.use("/user",userRoutes)
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
