@@ -6,9 +6,9 @@ export interface ProductDetailInterface extends mongoose.Document {
   fatLevel?: string;
   sugarLevel?: string | undefined;
   saltLevel?: string;
-  suagr?: number;
+  sugar?: number;
   fat?: number;
-  salt?: string;
+  salt?: number;
   productDescription: string;
 }
 
@@ -22,7 +22,7 @@ export const ProductDetailSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  suagrLevel: {
+  sugarLevel: {
     type: String,
     required: false,
   },
@@ -31,7 +31,7 @@ export const ProductDetailSchema = new mongoose.Schema({
     required: false,
   },
   fat: {
-    type: String,
+    type: Number,
     required: false,
   },
   sugar: {
@@ -39,7 +39,7 @@ export const ProductDetailSchema = new mongoose.Schema({
     required: false,
   },
   salt: {
-    type: String,
+    type: Number,
     required: false,
   },
   productDescription: {
