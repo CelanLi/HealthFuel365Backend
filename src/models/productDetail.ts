@@ -9,6 +9,8 @@ export interface ProductDetailInterface extends mongoose.Document {
   sugar?: number;
   fat?: number;
   salt?: number;
+  vegan?: boolean;
+  vegetarian?: boolean;
   productDescription: string;
 }
 
@@ -42,6 +44,14 @@ export const ProductDetailSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  vegan: {
+    type: Boolean,
+    required: false,
+  },
+  vegetarian:  {
+    type: Boolean,
+    required: false,
+  }, 
   productDescription: {
     type: String,
     required: false,
