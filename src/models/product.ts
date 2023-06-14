@@ -5,12 +5,10 @@ export interface ProductInterface extends mongoose.Document {
   productID: string;
   category: string;
   imageUrl: string | undefined;
-  ingredientsText?: string;
   nutriScore: string;
   capacity?: number;
   productBrand?: string;
   productPrice?: number;
-
   productName: string;
 }
 
@@ -25,10 +23,6 @@ export const ProductSchema = new mongoose.Schema({
     required: false,
   },
   imageUrl: {
-    type: String,
-    required: false,
-  },
-  ingredientsText: {
     type: String,
     required: false,
   },
