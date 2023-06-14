@@ -24,13 +24,15 @@ export async function checkAuthentication(
   res: Response,
   next: any
 ) {
+
   if (!req.headers.authorization) {
     return res.status(401).send({
       error: "Unauthorized",
       message: "No token provided in the request",
     });
   }
-  const token = req.headers.authorization.substring(4);
+  const token = req.headers.authorization.substring(0);
+  console.log("gjk",token)
 
   // verifies secret and checks exp
   jwt.verify(token, JwtSecret, (err, decoded) => {

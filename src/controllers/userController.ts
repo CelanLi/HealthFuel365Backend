@@ -4,6 +4,7 @@ import bcrypt, { compareSync } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { internalServerErrorMessage, JwtSecret } from "../config";
 import ProfileSchema from "../models/profile";
+import user from "../models/user";
 
 export async function register(req: Request, res: Response) {
   console.log("789",req.body)
@@ -37,10 +38,11 @@ export async function register(req: Request, res: Response) {
     newUser.password = hashedPassword;
     //save new user into database
     let user = await newUser.save();
+    console.log(user._id)
     ProfileSchema.create({
       userID: user._id,
-      name: undefined,
-      goal: undefined,
+      // name: undefined,
+      // goal: undefined,
       typeOfEater: "Omnivore",
       // dietaryPreferences: undefined,
       losingWeightAsGoal: false,
@@ -48,7 +50,6 @@ export async function register(req: Request, res: Response) {
       lowInSugar: false,
       lowInSalt: false,
       nutriPreference: ['A','B','C','D','E']
-
     });
 
     const token = jwt.sign(
@@ -58,6 +59,8 @@ export async function register(req: Request, res: Response) {
         expiresIn: 86400, // expires in 24 hours
       }
     );
+
+    console.log(token)
 
     return res
       .status(200)
@@ -105,9 +108,73 @@ export async function login(req: Request, res: Response) {
       }
     );
 
+    console.log(token)
+
     return res.status(200).json({
       token: token,
       expiresIn: expirationTime,
+    });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function profileEdit(req: Request, res: Response) {
+  
+  const profile = req.body;
+  console.log("edit",profile)
+
+  try {
+    //@ts-ignore
+    const userID = req.userId; //current user's id
+    // const userID = "64872a4ed2c673dd7bba2b39";
+    console.log("afdlka",userID)
+    const existingUser = await Userschema.findOne({
+      _id: userID,
+    });
+    console.log("aaa",existingUser)
+
+    if (!userID || !existingUser) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "User doesn't exist!",
+      });
+    }
+
+    console.log("fasfll")
+    const profileToBeEdit = await ProfileSchema.findOne({
+      userID: userID,
+    });
+    console.log("dafjlaj",profileToBeEdit)
+
+    if (!profileToBeEdit) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Profile with ID:${userID} not found!`,
+      });
+    }
+    console.log("saf")
+    const profileResponse = ProfileSchema.findOneAndUpdate({ _id: profileToBeEdit._id }, profile, { new: true });
+    profileResponse
+      .then((updatedProfile) => {
+        // If updated, then save
+        if(updatedProfile){
+          updatedProfile.save()
+          .then((savedProfile) => {
+            console.log('Profile saved:', savedProfile);
+          })
+          .catch((error) => {
+            console.error('Error saving profile:', error);
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating profile:', error);
+      });
+    // profileResponse.save();
+    console.log("dafa",profileResponse)
+    return res.status(200).json({
+      message: "Profile updated successfully",
     });
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
