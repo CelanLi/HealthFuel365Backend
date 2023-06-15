@@ -7,10 +7,10 @@ import { checkAuthentication } from "../middleware/middleware";
  */
 const shoppingCartRoutes = express.Router();
  
-
+//To do: checkAuthentication
 shoppingCartRoutes.get("/shoppingCartList", ShoppingCartController.getShoppingCartList);
 shoppingCartRoutes.post("/deleteProductItem", ShoppingCartController.deleteProductItem);
-shoppingCartRoutes.post("/changeProductCount", checkAuthentication, ShoppingCartController.changeProductCount);
+shoppingCartRoutes.post("/changeProductCount", ShoppingCartController.changeProductCount);
 // userRoutes.post("/", ShoppingCartController.login);
 // userRoutes.delete("/:id", checkAuthentication, ShoppingCartController.deleteUser);
 
