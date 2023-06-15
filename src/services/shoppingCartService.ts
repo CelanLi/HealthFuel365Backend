@@ -1,8 +1,8 @@
-import ShoppingCartchema, { ShoppingCart } from "../models/shoppingcart";
+import ShoppingCartSchema, { ShoppingCart } from "../models/shoppingcart";
 import productItemSchema, { ProductItem } from "../models/productItem";
 
 export const getShoppingCart = async (id: string) => {
-  const shoppingCartItems = await ShoppingCartchema.findOne({
+  const shoppingCartItems = await ShoppingCartSchema.findOne({
     shoppingCartID: id,
   });
 
@@ -15,7 +15,7 @@ export const getShoppingCart = async (id: string) => {
   return shoppingcartDetail;
 };
 
-// // 待完成
+// To do
 // export const deleteProductItem = async (
 //   //the passed data need to be divided, both shoppingCartID and productID are needed
 //   id: string
@@ -26,7 +26,7 @@ export const getShoppingCart = async (id: string) => {
 //   return shoppingCartItems;
 // };
 
-// // 待完成
+// To do
 // export const changeProductCount = async (
 //   //the passed data need to be divided, both shoppingCartID and productID are needed
 //   id: string

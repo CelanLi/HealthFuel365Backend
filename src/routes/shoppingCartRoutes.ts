@@ -9,7 +9,7 @@ const shoppingCartRoutes = express.Router();
  
 
 shoppingCartRoutes.get("/shoppingCartList", ShoppingCartController.getShoppingCartList);
-shoppingCartRoutes.post("/deleteProductItem", checkAuthentication, ShoppingCartController.deleteProductItem);
+shoppingCartRoutes.post("/deleteProductItem", ShoppingCartController.deleteProductItem);
 shoppingCartRoutes.post("/changeProductCount", checkAuthentication, ShoppingCartController.changeProductCount);
 // userRoutes.post("/", ShoppingCartController.login);
 // userRoutes.delete("/:id", checkAuthentication, ShoppingCartController.deleteUser);

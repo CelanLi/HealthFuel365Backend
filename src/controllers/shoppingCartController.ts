@@ -17,7 +17,10 @@ export async function getShoppingCartList(req: Request, res: Response) {
   }
 }
 
-export async function deleteProductItem(req: Request, res: Response) {}
+export async function deleteProductItem(req: Request, res: Response) {
+  console.log(req);
+  return res.status(200).json({code: 0, msg: 'success'})
+}
 
 export async function changeProductCount(req: Request, res: Response) {}
 
