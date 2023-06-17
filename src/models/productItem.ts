@@ -9,12 +9,12 @@ export interface ProductItem extends mongoose.Document {
 
 export const ProductItemSchema = new mongoose.Schema({
   // used to create collections, generated at the time request processing
-  shoppingCartId: {
+  shoppingCartID: {
     type: String,
     required: true,
   },
   product: {
-    type: [
+    type: 
       {
         productID: {
           type: String,
@@ -25,10 +25,6 @@ export const ProductItemSchema = new mongoose.Schema({
           required: false,
         },
         imageUrl: {
-          type: String,
-          required: false,
-        },
-        ingredientsText: {
           type: String,
           required: false,
         },
@@ -53,7 +49,6 @@ export const ProductItemSchema = new mongoose.Schema({
           required: false,
         },  
       },
-    ],
     required: true,
   },
   quantity: {

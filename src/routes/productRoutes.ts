@@ -30,4 +30,6 @@ productRoutes.get("/:selectedSort", (req, res) => {
   }
 });
 
+productRoutes.post("/addToSc/:shoppingCartID/:productID",ProductController.addShoppingCart);
+
 export default productRoutes;

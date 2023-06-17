@@ -31,7 +31,7 @@ export async function checkAuthentication(
       message: "No token provided in the request",
     });
   }
-  const token = req.headers.authorization.substring(0);
+  const token = req.headers.authorization.substring(4);
   console.log("gjk",token)
 
   // verifies secret and checks exp
