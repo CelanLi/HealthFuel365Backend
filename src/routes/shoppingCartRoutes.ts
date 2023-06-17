@@ -11,7 +11,7 @@ const shoppingCartRoutes = express.Router();
 shoppingCartRoutes.get("/shoppingCartList", ShoppingCartController.getShoppingCartList);
 shoppingCartRoutes.post("/deleteProductItem", ShoppingCartController.deleteProductItem);
 shoppingCartRoutes.post("/changeProductCount", ShoppingCartController.changeProductCount);
-// userRoutes.post("/", ShoppingCartController.login);
-// userRoutes.delete("/:id", checkAuthentication, ShoppingCartController.deleteUser);
-
+shoppingCartRoutes.post("/validateCode",ShoppingCartController.validateCode);
+shoppingCartRoutes.post("/deletePromoCode",ShoppingCartController.deletePromoCode);
+ 
 export default shoppingCartRoutes;

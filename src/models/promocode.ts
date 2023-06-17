@@ -19,7 +19,7 @@ export const PromoCodeSchema = new mongoose.Schema({
     required: true,
   },
   discountRate: {
-    type: String,
+    type: Number,
     required: true,
   },
   minThreshold: {

@@ -6,6 +6,7 @@ export interface ShoppingCart extends mongoose.Document {
   totalSaving: number;
   subTotal: number;
   itemQuantity: number;
+  codeValue: string;
 }
 
 export const ShoppingCartSchema = new mongoose.Schema({
@@ -32,6 +33,11 @@ export const ShoppingCartSchema = new mongoose.Schema({
   itemQuantity: {
     type: Number,
     default:0,
+    required: true,
+  },
+  codeValue: {
+    type: String,
+    default:"",
     required: true,
   },
 });
