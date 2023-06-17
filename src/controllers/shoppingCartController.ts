@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { badRequestErrorMessage, internalServerErrorMessage } from "../config";
-import { getShoppingCart } from "../services/shoppingCartService";
+import {
+  getShoppingCart,
+  deleteProduct,
+  changeProductQuantity,
+} from "../services/shoppingCartService";
 
 export async function getShoppingCartList(req: Request, res: Response) {
   const { shoppingCartID } = req.query;
@@ -17,40 +21,50 @@ export async function getShoppingCartList(req: Request, res: Response) {
   }
 }
 
-export async function deleteProductItem(req: Request, res: Response) {}
+export async function deleteProductItem(req: Request, res: Response) {
+  const { shoppingCartID, productID } = req.body;
+  try {
+    //error
+    if (!shoppingCartID || typeof shoppingCartID != "string") {
+      return res
+        .status(400)
+        .json(badRequestErrorMessage("Missing body parameter shoppingCartID"));
+    } else if (!productID || typeof productID != "string") {
+      return res
+        .status(400)
+        .json(badRequestErrorMessage("Missing body parameter productID"));
+    }
 
-export async function changeProductCount(req: Request, res: Response) {}
+    await deleteProduct(shoppingCartID, productID);
+    return res.status(200).send("");
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
 
-// export async function getProductByCategory(req: Request, res: Response) {
-//   const { category } = req.query;
-//   try {
-//     if (!category || typeof category != "string") {
-//       return res
-//         .status(400)
-//         .json(badRequestErrorMessage("Missing query parameter category"));
-//     }
+export async function changeProductCount(req: Request, res: Response) {
+  let { shoppingCartID, productID, quantity } = req.body;
+  try { 
+    //error
+    if (!shoppingCartID || typeof shoppingCartID != "string") {
+      return res
+        .status(400)
+        .json(badRequestErrorMessage("Missing body parameter shoppingCartID"));
+    } else if (!productID || typeof productID != "string") {
+      return res
+        .status(400)
+        .json(badRequestErrorMessage("Missing body parameter productID"));
+    } else if (typeof quantity != "number" || `${quantity}`.includes('.') ||quantity < 1) {
+      return res
+        .status(400)
+        .json(
+          badRequestErrorMessage("Missing body parameter product quantity")
+        );
+    }
 
-//     const products = await findProductByCategory(category);
-//     return res.status(200).send(products);
-//   } catch (error) {
-//     return res.status(500).json(internalServerErrorMessage);
-//   }
-// }
-
-//   export async function deleteProduct(req: Request, res: Response) {
-//     const { id } = req.params;
-//     try {
-//       if (id) {
-//         return res
-//           .status(400)
-//           .json(badRequestErrorMessage("Missing parameter id"));
-//       }
-
-//       ProductSchema.findByIdAndDelete(id);
-//       return res.status(200).send({
-//         message: `Deleted product with id ${id} successfully`,
-//       });
-//     } catch (error) {
-//       return res.status(500).json(internalServerErrorMessage);
-//     }
-//   }
+    await changeProductQuantity(shoppingCartID, productID, quantity);
+    return res.status(200).send("");
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}

@@ -16,18 +16,22 @@ export const ShoppingCartSchema = new mongoose.Schema({
   },
   itemPrice: {
     type: Number,
+    default:0,
     required: true,
   },
   totalSaving: {
     type: Number,
+    default:0,
     required: true,
   },
   subTotal: {
     type: Number,
+    default:0,
     required: true,
   },
   itemQuantity: {
     type: Number,
+    default:0,
     required: true,
   },
 });
