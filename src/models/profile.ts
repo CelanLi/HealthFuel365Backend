@@ -4,6 +4,7 @@ import { EaterType } from "./types";
 export interface ProfileInterface extends mongoose.Document {
   userID: string;
   losingWeightAsGoal: boolean;
+  keepGoodDietAsGoal:boolean;
   lowInFat: boolean;
   lowInSugar: boolean;
   lowInSalt: boolean;
@@ -19,6 +20,10 @@ export const ProfileSchema = new mongoose.Schema({
     unique: true,
   },
   losingWeightAsGoal: {
+    type: Boolean,
+    required: true,
+  },
+  keepGoodDietAsGoal: {
     type: Boolean,
     required: true,
   },

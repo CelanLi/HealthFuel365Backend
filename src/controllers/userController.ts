@@ -13,7 +13,6 @@ import { findAddressByUser } from "../services/userService";
 import user from "../models/user";
 
 export async function register(req: Request, res: Response) {
-  console.log("789",req.body)
   const newUser = new Userschema(req.body);
 
   if (!newUser) {
@@ -52,6 +51,7 @@ export async function register(req: Request, res: Response) {
       typeOfEater: "Omnivore",
       // dietaryPreferences: undefined,
       losingWeightAsGoal: false,
+      keepGoodDietAsGoal:false,
       lowInFat: false,
       lowInSugar: false,
       lowInSalt: false,
@@ -78,7 +78,6 @@ export async function register(req: Request, res: Response) {
 }
 
 export async function login(req: Request, res: Response) {
-  console.log("123",req.body)
   const { username, password } = req.body;
   //check for correct params
   if (!username || !password) {
@@ -125,11 +124,30 @@ export async function login(req: Request, res: Response) {
   }
 }
 
+export async function getUser(req: Request, res: Response) {
+  const userID = req.userId;
+  Userschema.findById(userID)
+    .exec()
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({
+          error: "Not Found",
+          message: "User not found",
+        });
+      }
+      //send out modified userobject, since we do not want to send out the password
+      const requestedUser = {
+        username: user.username,
+        id: user._id,
+      };
+      return res.status(200).json(requestedUser);
+    })
+    .catch((error) => res.status(500).json(internalServerErrorMessage));
+}
+
 export async function profileEdit(req: Request, res: Response) {
   
   const profile = req.body;
-  console.log("edit",profile)
-
   try {
     //@ts-ignore
     const userID = req.userId; //current user's id
@@ -147,7 +165,6 @@ export async function profileEdit(req: Request, res: Response) {
       });
     }
 
-    console.log("fasfll")
     const profileToBeEdit = await ProfileSchema.findOne({
       userID: userID,
     });
@@ -159,7 +176,7 @@ export async function profileEdit(req: Request, res: Response) {
         message: `Profile with ID:${userID} not found!`,
       });
     }
-    console.log("saf")
+
     const profileResponse = ProfileSchema.findOneAndUpdate({ _id: profileToBeEdit._id }, profile, { new: true });
     profileResponse
       .then((updatedProfile) => {
@@ -182,6 +199,39 @@ export async function profileEdit(req: Request, res: Response) {
     return res.status(200).json({
       message: "Profile updated successfully",
     });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function profileGet(req: Request, res: Response) {
+  try {
+    //@ts-ignore
+    const userID = req.userId; //current user's id
+    const existingUser = await Userschema.findOne({
+      _id: userID,
+    });
+
+    if (!userID || !existingUser) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "User doesn't exist!",
+      });
+    }
+
+    const profileGet = await ProfileSchema.findOne({
+      userID: userID,
+    });
+    console.log("dafjlaj",profileGet)
+
+    if (!profileGet) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Profile with ID:${userID} not found!`,
+      });
+    }
+
+    return res.status(200).send(profileGet);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
@@ -245,26 +295,84 @@ export async function addressGet(req: Request, res: Response) {
   }
 }
 
-export async function getUser(req: Request, res: Response) {
-  const userID = req.query.id;
-  Userschema.findById(userID)
-    .exec()
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({
-          error: "Not Found",
-          message: "User not found",
-        });
-      }
-      //send out modified userobject, since we do not want to send out the password
-      const requestedUser = {
-        username: user.username,
-        id: user._id,
-      };
-      return res.status(200).json(requestedUser);
-    })
-    .catch((error) => res.status(500).json(internalServerErrorMessage));
+export async function addressDelete(req: Request, res: Response) {
+  try {
+    //@ts-ignore
+    const addressID = req.query.addressID; //current address's id
+    console.log(addressID)
+
+    if (!addressID) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "No id defined",
+      });
+    }
+    let addressToBeDeleted = await AddressSchema.findById({ _id: addressID });
+    if (!addressToBeDeleted) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Address with ID:${addressID} not found!`,
+      });
+    }
+
+    await AddressSchema.findByIdAndDelete(addressID);
+
+    return res.status(200).json({
+      message: "Address deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
 }
+
+export async function addressEdit(req: Request, res: Response) {
+  try {
+    const address = req.body;
+    const addressID = req.query.addressID;
+    console.log("edit",address)
+
+    if (!addressID) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "No id defined",
+      });
+    }
+    let addressToBeEdit = await AddressSchema.findById({ _id: addressID });
+    if (!addressToBeEdit) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Address with ID:${addressID} not found!`,
+      });
+    }
+    console.log("dafjlaj",addressToBeEdit)
+
+    const addressResponse = AddressSchema.findOneAndUpdate({ _id: addressToBeEdit._id }, address, { new: true });
+    addressResponse
+      .then((updatedAddress) => {
+        // If updated, then save
+        if(updatedAddress){
+          updatedAddress.save()
+          .then((savedAddress) => {
+            console.log('Address saved:', savedAddress);
+          })
+          .catch((error) => {
+            console.error('Error saving Address:', error);
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating Address:', error);
+      });
+    console.log("dafa",addressResponse)
+    return res.status(200).json({
+      message: "Address updated successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+
 
 export async function deleteUser(req: Request, res: Response) {
   const { id } = req.params; //the requested id

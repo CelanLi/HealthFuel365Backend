@@ -7,15 +7,17 @@ import { checkAuthentication } from "../middleware/middleware";
  */
 const userRoutes = express.Router();
 
-userRoutes.get("/", checkAuthentication, UserController.getUser);
-
 userRoutes.post("/register", UserController.register);
 userRoutes.post("/login", UserController.login);
+userRoutes.get("/getuser", checkAuthentication, UserController.getUser);
 
 userRoutes.put("/profileedit",checkAuthentication, UserController.profileEdit);
+userRoutes.get("/profileget",checkAuthentication, UserController.profileGet);
 
 userRoutes.get("/addressget",checkAuthentication,UserController.addressGet)
 userRoutes.post("/addressadd",checkAuthentication,UserController.addressAdd)
+userRoutes.delete("/addressdelete",checkAuthentication,UserController.addressDelete)
+userRoutes.put("/addressedit",checkAuthentication, UserController.addressEdit);
 
 userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
 
