@@ -1,8 +1,8 @@
 import * as mongoose from "mongoose";
-import { ProfileSchema } from "./profile";
+import User from './user'
 
 export interface AddressInterface extends mongoose.Document{
-    userID: string;
+    user: mongoose.Schema.Types.ObjectId;
     street: string;
     postCode: number;
     city: string;
@@ -12,10 +12,9 @@ export interface AddressInterface extends mongoose.Document{
 }
 
 export const AddressSchema = new mongoose.Schema({
-    userID: {
-        type: String,
-        required: true,
-        unique: true,
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: User, // 引用 User 模型
     },
     street: {
         type: String,
@@ -31,7 +30,6 @@ export const AddressSchema = new mongoose.Schema({
     },
     additionalAddress: {
         type: String,
-        required: true,
     },
     tel: {
         type: String,

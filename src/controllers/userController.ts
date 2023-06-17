@@ -8,6 +8,8 @@ import Userschema from "../models/user";
 import ProfileSchema from "../models/profile";
 import AddressSchema from "../models/address";
 
+import { findAddressByUser } from "../services/userService";
+
 import user from "../models/user";
 
 export async function register(req: Request, res: Response) {
@@ -186,7 +188,6 @@ export async function profileEdit(req: Request, res: Response) {
 }
 
 export async function addressAdd(req: Request, res: Response) {
-  console.log("enter")
   const newAddress = new AddressSchema(req.body)
   console.log("addressAdd",newAddress)
 
@@ -207,16 +208,38 @@ export async function addressAdd(req: Request, res: Response) {
       });
     }
 
-    console.log(userID)
-    newAddress.userID = userID;
-    console.log("kljkl",newAddress)
-    let address = await newAddress.save();
+    newAddress.user = userID;
 
-    // profileResponse.save();
+    let address = await newAddress.save();
     console.log("dafa",address)
+
     return res.status(200).json({
       message: "Address added successfully",
     });
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function addressGet(req: Request, res: Response) {
+  try {
+    //@ts-ignore
+    const userID = req.userId; //current user's id
+    const existingUser = await Userschema.findOne({
+      _id: userID,
+    });
+
+    if (!userID || !existingUser) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "User doesn't exist!",
+      });
+    }
+
+    const address = await findAddressByUser(userID);
+    console.log("fjalkjflka",address)
+    return res.status(200).send(address);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
