@@ -5,6 +5,7 @@ import {
   findProductByName,
   findProductByCategory,
   findAllProducts,
+  addToShoppingCart,
 } from "../services/productService";
 export async function addProduct(req: Request, res: Response) {
   const { product } = req.body;
@@ -60,6 +61,21 @@ export async function getAllProducts(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
+
+export async function addShoppingCart(req: Request, res: Response) {
+  const { shoppingCartID, productID } = req.params;
+  console.log("add shopping Cart runs");
+  try {
+    if (!shoppingCartID || typeof shoppingCartID != "string" || !productID || typeof productID != "string") {
+      return res.status(400).json(badRequestErrorMessage("Missing query parameter name"));
+    }
+    const result = await addToShoppingCart(shoppingCartID, productID);
+    return res.status(200).send(result);
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
 // export async function sortByName(req: Request, res: Response) {
 //   try {
 //     const products = await sortProductsByName();

@@ -1,4 +1,6 @@
 import ProductSchema, { ProductInterface } from "../models/product";
+import ProductItemSchema from "../models/productItem";
+import { calculateSummary } from "./shoppingCartService";
 
 export const findProductByName = async (
   text: string,
@@ -37,6 +39,7 @@ export const findProductByCategory = async (
   });
   return products;
 };
+
 export const findAllProducts = async (
   selectedSort: string
 ): Promise<ProductInterface[] | null> => {
@@ -50,6 +53,7 @@ export const findAllProducts = async (
     return await sortProductsPriceDescending();
   }
 };
+
 export const findProductByID = async (
   id: string
 ): Promise<ProductInterface | null> => {
@@ -65,21 +69,51 @@ export const sortProductsByNutriscore = async (): Promise<
   const products = await ProductSchema.find().sort({ nutriScore: 1 });
   return products;
 };
+
 export const sortProductsPriceAscending = async (): Promise<
   ProductInterface[] | null
 > => {
   const products = await ProductSchema.find().sort({ productPrice: 1 });
   return products;
 };
+
 export const sortProductsPriceDescending = async (): Promise<
   ProductInterface[] | null
 > => {
   const products = await ProductSchema.find().sort({ productPrice: -1 });
   return products;
 };
+
 export const sortProductsByName = async (): Promise<
   ProductInterface[] | null
 > => {
   const products = await ProductSchema.find().sort({ productName: 1 });
   return products;
+};
+
+export const addToShoppingCart = async (shoppingCartID: string, productID: string) =>{
+  const query = { shoppingCartID: shoppingCartID, "product.productID": productID};
+  const update = { $inc: { quantity: 1 } };
+  const options = { new: true };
+  //options {new: false} => return the original doc, options {new: true} return the updated docs
+  const updatedCartItem = await ProductItemSchema.findOneAndUpdate( query, update, options );
+  if (updatedCartItem) {
+    // update summary
+    await calculateSummary(shoppingCartID).catch(() => {
+      return "error";
+    });
+    return updatedCartItem;
+  } else {
+    const product = await ProductSchema.findOne({ productID: productID });
+    const createdProductItem = await ProductItemSchema.create({
+      shoppingCartID: shoppingCartID,
+      product: product,
+      quantity: 1,
+    });
+    // update summary
+    await calculateSummary(shoppingCartID).catch(() => {
+      return "error";
+    });
+    return createdProductItem;
+  }
 };
