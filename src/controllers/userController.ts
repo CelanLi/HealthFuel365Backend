@@ -1,9 +1,13 @@
 import { Request, Response } from "express";
-import Userschema from "../models/user";
+
 import bcrypt, { compareSync } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { internalServerErrorMessage, JwtSecret } from "../config";
+
+import Userschema from "../models/user";
 import ProfileSchema from "../models/profile";
+import AddressSchema from "../models/address";
+
 import user from "../models/user";
 
 export async function register(req: Request, res: Response) {
@@ -175,6 +179,43 @@ export async function profileEdit(req: Request, res: Response) {
     console.log("dafa",profileResponse)
     return res.status(200).json({
       message: "Profile updated successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function addressAdd(req: Request, res: Response) {
+  console.log("enter")
+  const newAddress = new AddressSchema(req.body)
+  console.log("addressAdd",newAddress)
+
+  try {
+    //@ts-ignore
+    const userID = req.userId; //current user's id
+    // const userID = "64872a4ed2c673dd7bba2b39";
+    console.log("afdlka",userID)
+    const existingUser = await Userschema.findOne({
+      _id: userID,
+    });
+    console.log("aaa",existingUser)
+
+    if (!userID || !existingUser) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "User doesn't exist!",
+      });
+    }
+
+    console.log(userID)
+    newAddress.userID = userID;
+    console.log("kljkl",newAddress)
+    let address = await newAddress.save();
+
+    // profileResponse.save();
+    console.log("dafa",address)
+    return res.status(200).json({
+      message: "Address added successfully",
     });
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);

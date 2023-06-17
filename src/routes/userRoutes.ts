@@ -11,6 +11,7 @@ userRoutes.get("/", checkAuthentication, UserController.getUser);
 userRoutes.post("/register", UserController.register);
 userRoutes.post("/login", UserController.login);
 userRoutes.put("/profileedit",checkAuthentication, UserController.profileEdit);
+userRoutes.post("/addressadd",checkAuthentication,UserController.addressAdd)
 userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
 
 export default userRoutes;
