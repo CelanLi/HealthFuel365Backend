@@ -97,6 +97,7 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   const { username, password } = req.body;
   //check for correct params
+  console.log("body",req.body)
   if (!username || !password) {
     return res.status(400).json({
       error: "Bad Request",
@@ -142,8 +143,10 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function getUser(req: Request, res: Response) {
-  const userID = req.userId;
-  Userschema.findById(userID)
+  try {
+    //@ts-ignore
+    const userID = req.userId;
+    Userschema.findById(userID)
     .exec()
     .then((user) => {
       if (!user) {
@@ -160,6 +163,11 @@ export async function getUser(req: Request, res: Response) {
       return res.status(200).json(requestedUser);
     })
     .catch((error) => res.status(500).json(internalServerErrorMessage));
+  } catch (error) {
+    
+  }
+  
+  
 }
 
 export async function profileEdit(req: Request, res: Response) {
