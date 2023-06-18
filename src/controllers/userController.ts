@@ -58,19 +58,36 @@ export async function register(req: Request, res: Response) {
       nutriPreference: ['A','B','C','D','E']
     });
 
+    // const token = jwt.sign(
+    //   { id: user._id, username: user.username },
+    //   JwtSecret,
+    //   {
+    //     expiresIn: 86400, // expires in 24 hours
+    //   }
+    // );
+
+    // console.log(token)
+
+    // return res
+    //   .status(200)
+    //   .json({ token: token, message: "User was created successfully" });
+
+    const expirationTime = 86400; // expires in 24 hours
+    // create a token
     const token = jwt.sign(
-      { id: user._id, username: user.username },
+      { id: user.id, username: user.username },
       JwtSecret,
       {
-        expiresIn: 86400, // expires in 24 hours
+        expiresIn: expirationTime, // expires in 24 hours
       }
     );
 
     console.log(token)
 
-    return res
-      .status(200)
-      .json({ token: token, message: "User was created successfully" });
+    return res.status(200).json({
+      token: token,
+      expiresIn: expirationTime,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json(internalServerErrorMessage);
