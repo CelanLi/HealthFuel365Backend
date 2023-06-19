@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import cors from 'cors';
 import mongoose from "mongoose";
 import * as Constants from "./config";
 import productRoutes from "./routes/productRoutes";
@@ -14,6 +15,14 @@ mongoose.connect(Constants.mongoURI).catch((err) => {
   );
 });
 const app = express();
+
+// allow Cross-origin resource sharing
+app.use(cors({
+  origin: 'http://localhost:3000', // set the domain names that are allowed to be accessed
+  credentials: true, // allow cookies sent through the request
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // HTTP requests allowed
+  allowedHeaders: ['Content-Type', 'Authorization'] // headers allowed
+}));
 
 // allow requests from different domains
 app.use(allowCrossDomain);

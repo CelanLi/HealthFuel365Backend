@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.1",
+    "@types/cors": "^2.8.13",
     "@types/express-form-data": "^2.0.1",
     "@types/jquery": "^3.5.14",
     "@types/jsonwebtoken": "^8.5.6",
