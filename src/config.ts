@@ -1,6 +1,7 @@
 import { ErrorMessage } from "./models/types";
 //Configuration variables
-export const mongoURI = "mongodb://127.0.0.1:27017/healthfuel365";
+export const mongoURI =
+  "mongodb+srv://Healthfuel365:HEALTHFUEL365-team33@cluster0.vc8gcez.mongodb.net/healthfuel365"; //"mongodb://127.0.0.1:27017/healthfuel365";
 export const JwtSecret = "very secret secret";
 export const imageServer = "http://localhost:5000/api";
 export const imageServiceURI = imageServer + "";
