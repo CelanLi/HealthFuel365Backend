@@ -6,6 +6,6 @@ import * as AlternativeController from "../controllers/alternativeController";
  */
 const alternativeRoutes = express.Router();
 
-alternativeRoutes.get("/:selectedItem", AlternativeController.getAlternative);
+alternativeRoutes.get("/:junkFoodType", AlternativeController.getAlternative);
 
 export default alternativeRoutes;
