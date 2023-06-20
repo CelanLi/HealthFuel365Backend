@@ -7,6 +7,7 @@ import { internalServerErrorMessage, JwtSecret } from "../config";
 import Userschema from "../models/user";
 import ProfileSchema from "../models/profile";
 import AddressSchema from "../models/address";
+import ShoppingCartSchema from "../models/shoppingcart";
 
 import { findAddressByUser } from "../services/userService";
 
@@ -44,6 +45,8 @@ export async function register(req: Request, res: Response) {
     //save new user into database
     let user = await newUser.save();
     console.log(user._id)
+    
+    // create a default profile
     ProfileSchema.create({
       userID: user._id,
       // name: undefined,
@@ -57,6 +60,53 @@ export async function register(req: Request, res: Response) {
       lowInSalt: false,
       nutriPreference: ['A','B','C','D','E']
     });
+
+    // create an empty shoppingcart, where shopping cart id is the same with user id
+    // ShoppingCartSchema.create({
+    //     shoppingCartID: user._id,
+    //     itemPrice: 0,
+    //     totalSaving: 0,
+    //     subTotal: 0,
+    //     itemQuantity: 0,
+    //     codeValue: ""
+    // });
+
+  const shoppingCartTest = new ShoppingCartSchema({
+    shoppingCartID: user._id,
+    itemPrice: 0,
+    totalSaving: 0,
+    subTotal: 0,
+    itemQuantity: 0,
+    codeValue: ""
+  });
+  
+  console.log("run")
+  shoppingCartTest.validate()
+  .catch((error) => {
+    // if the validation fails
+    const validationErrors = [];
+    for (let key in error.errors) {
+      if (error.errors.hasOwnProperty(key)) {
+        const errorMessage = error.errors[key].message;
+        validationErrors.push(errorMessage);
+      }
+      console.log(error)
+    }
+    console.error('Validation failed:', validationErrors);
+  })
+  .then(() => {
+    console.log("passed")
+    // validation passed, save
+    shoppingCartTest.save()
+      .then((savedShoppingCart) => {
+        console.log('ShoppingCart saved:', savedShoppingCart);
+      })
+      .catch((error) => {
+        console.error('Save failed:', error);
+      });
+  });
+  console.log("end")
+
 
     // const token = jwt.sign(
     //   { id: user._id, username: user.username },
@@ -321,7 +371,9 @@ export async function addressGet(req: Request, res: Response) {
 }
 
 export async function addressDelete(req: Request, res: Response) {
+  console.log("addressDelete1")
   try {
+    console.log("addressDelete2")
     //@ts-ignore
     const addressID = req.query.addressID; //current address's id
     console.log(addressID)

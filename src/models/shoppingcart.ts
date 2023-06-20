@@ -38,7 +38,6 @@ export const ShoppingCartSchema = new mongoose.Schema({
   codeValue: {
     type: String,
     default:"",
-    required: true,
   },
 });
 
