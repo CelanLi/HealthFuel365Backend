@@ -83,8 +83,7 @@ export async function validateCode(req: Request, res: Response) {
       return res
         .status(400)
         .json(badRequestErrorMessage("Missing body parameter Promo Code"));
-    }
-    console.log(shoppingCartID, code);
+    } 
 
     try {
       await validatePromoCode(shoppingCartID, code)

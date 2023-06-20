@@ -6,6 +6,7 @@ import productRoutes from "./routes/productRoutes";
 import productDetailRoutes from "./routes/productDetailRoutes";
 import shoppingCartRoutes from "./routes/shoppingCartRoutes";
 import userRoutes from "./routes/userRoutes";
+import orderRoutes from "./routes/orderRoutes";
 import alternativeRoutes from "./routes/alternativeRoutes";
 import { allowCrossDomain } from "./middleware/middleware";
 mongoose.connect(Constants.mongoURI).catch((err) => {
@@ -32,6 +33,7 @@ app.use("/product/detail", productDetailRoutes);
 app.use("/shoppingcart", shoppingCartRoutes);
 app.use("/user",userRoutes);
 app.use("/alternative", alternativeRoutes);
+app.use("/order", orderRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
