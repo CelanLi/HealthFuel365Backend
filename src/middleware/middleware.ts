@@ -24,7 +24,6 @@ export async function checkAuthentication(
   res: Response,
   next: any
 ) {
-
   if (!req.headers.authorization) {
     return res.status(401).send({
       error: "Unauthorized",
@@ -32,7 +31,7 @@ export async function checkAuthentication(
     });
   }
   const token = req.headers.authorization.substring(4);
-  console.log("gjk",token)
+  console.log("check authentication", token);
 
   // verifies secret and checks exp
   jwt.verify(token, JwtSecret, (err, decoded) => {
