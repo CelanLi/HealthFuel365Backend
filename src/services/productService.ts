@@ -1,3 +1,4 @@
+import { error } from "jquery";
 import ProductSchema, { ProductInterface } from "../models/product";
 import ProductItemSchema from "../models/productItem";
 import { calculateSummary } from "./shoppingCartService";
@@ -91,20 +92,20 @@ export const sortProductsByName = async (): Promise<
   return products;
 };
 
-export const addToShoppingCart = async (shoppingCartID: string, productID: string) =>{
-  const query = { shoppingCartID: shoppingCartID, "product.productID": productID};
+export const addToShoppingCart = async (
+  shoppingCartID: string,
+  productID: string
+) => {
+  const query = {
+    shoppingCartID: shoppingCartID,
+    "product.productID": productID,
+  };
   const update = { $inc: { quantity: 1 } };
   const options = { new: true };
   //options {new: false} => return the original doc, options {new: true} return the updated docs
-  const updatedCartItem = await ProductItemSchema.findOneAndUpdate( query, update, options );
-  if (updatedCartItem) {
-    // update summary
-    await calculateSummary(shoppingCartID).catch(() => {
-      return "error";
-    });
-    return updatedCartItem;
-  } else {
-    const product = await ProductSchema.findOne({ productID: productID });
+  const productItem = await ProductItemSchema.findOne(query); //current quantity of a certain product in the shoppingcart
+  const product = await ProductSchema.findOne({ productID: productID });
+  if (!productItem) {
     const createdProductItem = await ProductItemSchema.create({
       shoppingCartID: shoppingCartID,
       product: product,
@@ -115,5 +116,22 @@ export const addToShoppingCart = async (shoppingCartID: string, productID: strin
       return "error";
     });
     return createdProductItem;
+  } else {
+    if (productItem?.quantity < (product?.capacity ?? 0)) {
+      const updatedCartItem = await ProductItemSchema.findOneAndUpdate(
+        query,
+        update,
+        options
+      );
+      // update summary
+      await calculateSummary(shoppingCartID).catch(() => {
+        return "error";
+      });
+      return updatedCartItem;
+    } else {
+      throw new Error(
+        "Sorry, there're only " + product?.capacity + " items available"
+      );
+    }
   }
 };
