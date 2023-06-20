@@ -1,5 +1,6 @@
 import * as mongoose from "mongoose";
 import { OrderStatus, IAddress, ProductItem } from "./types";
+import User from './user'
 
 export interface OrderInterface extends mongoose.Document {
   //interface of mongoose model
@@ -34,53 +35,55 @@ export const OrderSchema = new mongoose.Schema({
     required: true,
   },
   orderProducts: {
-    type: {
-      shoppingCartID: {
-        type: String,
-        required: true,
-      },
-      product: {
-        type: {
-          productID: {
-            type: String,
-            required: true,
-          },
-          category: {
-            type: String,
-            required: false,
-          },
-          imageUrl: {
-            type: String,
-            required: false,
-          },
-          nutriScore: {
-            type: String,
-            required: false,
-          },
-          capacity: {
-            type: Number,
-            required: false,
-          },
-          productBrand: {
-            type: String,
-            required: false,
-          },
-          productPrice: {
-            type: Number,
-            required: false,
-          },
-          productName: {
-            type: String,
-            required: false,
-          },
+    type: [
+      {
+        shoppingCartID: {
+          type: String,
+          required: true,
         },
-        required: true,
+        product: {
+          type: {
+            productID: {
+              type: String,
+              required: true,
+            },
+            category: {
+              type: String,
+              required: false,
+            },
+            imageUrl: {
+              type: String,
+              required: false,
+            },
+            nutriScore: {
+              type: String,
+              required: false,
+            },
+            capacity: {
+              type: Number,
+              required: false,
+            },
+            productBrand: {
+              type: String,
+              required: false,
+            },
+            productPrice: {
+              type: Number,
+              required: false,
+            },
+            productName: {
+              type: String,
+              required: false,
+            },
+          },
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+        },
       },
-      quantity: {
-        type: Number,
-        required: true,
-      },
-    },
+    ],
     required: true,
   },
   trackingNumber: {
@@ -89,9 +92,9 @@ export const OrderSchema = new mongoose.Schema({
   },
   shipTo: {
     type: {
-      userID: {
-        type: String,
-        required: true,
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: User, // 引用 User 模型
       },
       street: {
         type: String,
@@ -106,8 +109,7 @@ export const OrderSchema = new mongoose.Schema({
         required: true,
       },
       additionalAddress: {
-        type: String,
-        required: true,
+        type: String, 
       },
       tel: {
         type: String,
