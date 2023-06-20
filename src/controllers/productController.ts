@@ -6,6 +6,7 @@ import {
   findProductByCategory,
   findAllProducts,
   addToShoppingCart,
+  findAllBrands
 } from "../services/productService";
 export async function addProduct(req: Request, res: Response) {
   const { product } = req.body;
@@ -71,6 +72,16 @@ export async function addShoppingCart(req: Request, res: Response) {
     }
     const result = await addToShoppingCart(shoppingCartID, productID);
     return res.status(200).send(result);
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getAllBrands(req: Request, res: Response) {
+  try {
+    const brands= await findAllBrands();
+    console.log("brand controller");
+    return res.status(200).send(brands);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }

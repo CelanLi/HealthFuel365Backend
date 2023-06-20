@@ -29,11 +29,11 @@ productRoutes.get("/:selectedSort", (req, res) => {
     console.log("all");
   }
 });
-
 productRoutes.post(
   "/addToSc/:shoppingCartID/:productID",
   checkAuthentication,
   ProductController.addShoppingCart
 );
+productRoutes.get("/filter/brands", ProductController.getAllBrands)
 
 export default productRoutes;

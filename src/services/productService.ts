@@ -135,3 +135,12 @@ export const addToShoppingCart = async (
     }
   }
 };
+
+export const findAllBrands = async () => {
+  const products = await ProductSchema.find();
+  const brands = products.map( (product) => product.productBrand);
+  // the returned brand names are unique and sort alphabetically 
+  const uniqueBrands = [...new Set(brands)].sort();
+  console.log(uniqueBrands);
+  return uniqueBrands;
+};
