@@ -1,5 +1,6 @@
 import * as mongoose from "mongoose";
 import { OrderStatus, IAddress, ProductItem } from "./types";
+import User from './user'
 
 export interface OrderInterface extends mongoose.Document {
   //interface of mongoose model
@@ -14,6 +15,10 @@ export interface OrderInterface extends mongoose.Document {
 
 export const OrderSchema = new mongoose.Schema({
   orderID: {
+    type: String,
+    required: true,
+  },
+  userID: {
     type: String,
     required: true,
   },
@@ -32,88 +37,50 @@ export const OrderSchema = new mongoose.Schema({
   orderProducts: {
     type: [
       {
-        quantity: { type: Number, required: true },
+        shoppingCartID: {
+          type: String,
+          required: true,
+        },
         product: {
-          type: [
-            {
-              ean: {
-                type: OrderStatus,
-                required: false,
-              },
-              categories: {
-                type: [String],
-                required: false,
-              },
-              imageUrl: {
-                type: String,
-                required: false,
-              },
-              ingredients: {
-                type: [Map],
-                required: false,
-              },
-              ingredientsText: {
-                type: String,
-                required: false,
-              },
-              ingredientsTextDE: {
-                type: String,
-                required: false,
-              },
-              nutriments: {
-                type: Map,
-                required: true,
-              },
-              ecoscoreGrade: {
-                type: String,
-                required: false,
-              },
-              novaGroup: {
-                type: Number,
-                required: false,
-              },
-              nutriScore: {
-                type: String,
-                required: false,
-              },
-              nutriscoreData: {
-                type: Map,
-                required: false,
-              },
-              nutriScoreScore: {
-                type: Number,
-                required: false,
-              },
-              quantity: {
-                type: Number,
-                required: false,
-              },
-              nutrientLevels: {
-                type: Map,
-                required: false,
-              },
-              brands: {
-                type: String,
-                required: false,
-              },
-              labels: {
-                type: String,
-                required: false,
-              },
-              productName: {
-                type: String,
-                required: false,
-              },
-              categories_tags: {
-                type: [String],
-                required: false,
-              },
-              productNameDE: {
-                type: String,
-                required: false,
-              },
+          type: {
+            productID: {
+              type: String,
+              required: true,
             },
-          ],
+            category: {
+              type: String,
+              required: false,
+            },
+            imageUrl: {
+              type: String,
+              required: false,
+            },
+            nutriScore: {
+              type: String,
+              required: false,
+            },
+            capacity: {
+              type: Number,
+              required: false,
+            },
+            productBrand: {
+              type: String,
+              required: false,
+            },
+            productPrice: {
+              type: Number,
+              required: false,
+            },
+            productName: {
+              type: String,
+              required: false,
+            },
+          },
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
         },
       },
     ],
@@ -124,38 +91,35 @@ export const OrderSchema = new mongoose.Schema({
     required: true,
   },
   shipTo: {
-    type: [
-      {
-        userID: {
-          type: String,
-          required: true,
-        },
-        street: {
-          type: String,
-          required: true,
-        },
-        postCode: {
-          type: String,
-          required: true,
-        },
-        city: {
-          type: String,
-          required: true,
-        },
-        additionalAddress: {
-          type: String,
-          required: true,
-        },
-        tel: {
-          type: String,
-          required: true,
-        },
-        receiver: {
-          type: String,
-          required: true,
-        },
+    type: {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: User, // 引用 User 模型
       },
-    ],
+      street: {
+        type: String,
+        required: true,
+      },
+      postCode: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      additionalAddress: {
+        type: String, 
+      },
+      tel: {
+        type: String,
+        required: true,
+      },
+      receiver: {
+        type: String,
+        required: true,
+      },
+    },
     required: true,
   },
 });
