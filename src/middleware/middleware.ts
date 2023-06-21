@@ -30,9 +30,9 @@ export async function checkAuthentication(
       message: "No token provided in the request",
     });
   }
-  // const token = req.headers.authorization.substring(4);
-  const cookie = req.headers.authorization;
-  const token = cookie.substring(cookie.indexOf("=") + 1);
+  const token = req.headers.authorization.substring(6);
+  // const cookie = req.headers.authorization;
+  // const token = cookie.substring(cookie.indexOf("=") + 1);
 
   console.log("check authentication", token);
 
