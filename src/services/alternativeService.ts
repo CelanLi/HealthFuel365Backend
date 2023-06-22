@@ -2,7 +2,6 @@ import ProductSchema, { ProductInterface } from "../models/product";
 import ProductDetailSchema from "../models/productDetail";
 
 export const findAlternative = async (
- /* to do: randomization*/
   junkFoodType: string
 ): Promise<ProductInterface[] | null> => {
   console.log("selected item: " + junkFoodType );
@@ -28,45 +27,65 @@ export const findAlternative = async (
   }
   /* 1. junk foof type : chips */
   if (junkFoodType === "0") {
-    return await ProductSchema.find({
+    return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
       category: "snacks",
       $or: [ { productName: { $regex: "chip", $options: "i" } }, // including "chip" and case-insensitive e.g., fruit chips
              { productName: { $regex: "mais", $options: "i"  } } // including "mais" and case-insensitice e.g., some snacks made from mais
            ]
-    }).limit(4); //Limit the number of alternative product to 4
+    }));
   } 
   /* 2. junk foof type : white chocolate */
   else if (junkFoodType === "1") {
-    return await ProductSchema.find({
+    return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
       productName: { $regex: "choco|schoko", $options: "i"} // chocolate flavored items
-    }).limit(4);
+    }));
   } 
+  /* 3. junk food type: coco-cola, which fat/salt Level is low and sugat level is high */
   else if (junkFoodType === "2") {
-    return await ProductSchema.find({
+    const betterNutrionProduct= await ProductDetailSchema.find({ 
+       sugarLevel: { $ne: "high" },
+       fatLevel: "small",
+       saltLevel: "small"
+    });
+    const betterNutrionProductIds=betterNutrionProduct.map((productDetail)=> productDetail.productID);
+    return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
-      /* to do*/
-    }).limit(4);
-  } 
+      category: "drinks",
+      productID: { $in: betterNutrionProductIds }
+     }));
+  }
   /* 4. junk foof type : gummi bears */
   else if (junkFoodType === "3") {
-    const sugarFreeProduct= await ProductDetailSchema.find({ sugar: 0 }).select("productID");  
+    const sugarFreeProduct= await ProductDetailSchema.find({ sugar: 0 }); 
     const sugarFreeProductIds=sugarFreeProduct.map((productDetail)=> productDetail.productID);
-    return await ProductSchema.find({
+    return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
       category: "snacks",
       productID: { $in: sugarFreeProductIds }
-    }).limit(4);
+    })); // sugar free snacks
   } 
+  /* 5. junk food type: cookies which contain high amount of sugar and fat, such as Choco Leibniz */
   else if (junkFoodType === "4") {
-    return await ProductSchema.find({
+    return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
-      /* to do*/
-    }).limit(4);
+      category: "snacks",
+      productName: { $regex: "cookies|biscuits", $options: "i" } 
+    }));
   } 
-  else return await ProductSchema.find({
-    ...commonConditions,
-     /* to do*/
-   }).limit(4);
+  /* 6. junk food type : salami*/
+  else{
+    return getRandomizedAlternatives(await ProductSchema.find({
+      ...commonConditions,
+      category: { $in: ["snacks","staple"] },
+      productName: { $regex: "w[uü]rst", $options: "i" } 
+     }));
+  };
+  } 
+
+/* used to randomly return 4 alternatives */
+const getRandomizedAlternatives = (alternativeList: ProductInterface[]): ProductInterface[] => {
+  const random = alternativeList.sort(() => Math.random() - 0.5);
+  return random.slice(0, 4);
 };
