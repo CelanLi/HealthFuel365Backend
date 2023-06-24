@@ -10,8 +10,10 @@ import AddressSchema from "../models/address";
 import ShoppingCartSchema from "../models/shoppingcart";
 
 import { findAddressByUser } from "../services/userService";
+import { findOrderByUser } from "../services/orderService";
 
 import user from "../models/user";
+import { MongoUnexpectedServerResponseError } from "mongodb";
 
 export async function register(req: Request, res: Response) {
   const newUser = new Userschema(req.body);
@@ -193,6 +195,7 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function getUser(req: Request, res: Response) {
+  console.log("getuser!")
   try {
     //@ts-ignore
     const userID = req.userId;
@@ -481,6 +484,32 @@ export async function deleteUser(req: Request, res: Response) {
     return res.status(200).json({
       message: "User deleted successfully",
     });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getOrder(req: Request, res: Response) {
+  console.log("getOrder")
+  try {
+    console.log("getOrder")
+    //@ts-ignore
+    const userID = req.userId; //current user's id
+    console.log(userID)
+    const existingUser = await Userschema.findOne({
+      _id: userID,
+    });
+
+    if (!userID || !existingUser) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "User doesn't exist!",
+      });
+    }
+
+    const order = await findOrderByUser(userID);
+    console.log("orderlist",order)
+    return res.status(200).send(order);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }

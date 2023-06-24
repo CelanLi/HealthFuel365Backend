@@ -19,6 +19,8 @@ userRoutes.post("/addressadd",checkAuthentication,UserController.addressAdd)
 userRoutes.delete("/addressdelete",checkAuthentication,UserController.addressDelete)
 userRoutes.put("/addressedit",checkAuthentication, UserController.addressEdit);
 
+userRoutes.get("/getorder",checkAuthentication,UserController.getOrder)
+
 userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
 
 export default userRoutes;

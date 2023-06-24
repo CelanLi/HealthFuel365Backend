@@ -8,6 +8,7 @@ const orderRoutes = express.Router();
 orderRoutes.get("/:id", openfoodfactsController.findProduct);
 
 orderRoutes.post("/createOrder", orderController.createOrder);
+orderRoutes.get("/getorder",checkAuthentication,orderController.getOrder)
 
 
 export default orderRoutes;
