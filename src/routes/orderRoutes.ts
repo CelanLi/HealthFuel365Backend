@@ -11,6 +11,7 @@ orderRoutes.get(
   openfoodfactsController.findProduct
 );
 
+orderRoutes.get("/getorder", checkAuthentication, orderController.getOrder);
 orderRoutes.post(
   "/createOrder",
   checkAuthentication,

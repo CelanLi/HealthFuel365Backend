@@ -8,7 +8,7 @@ import {
   JwtSecret,
 } from "../config";
 import ProfileSchema from "../models/profile";
-import { addOrder } from "../services/orderService";
+import { addOrder, findOrderByUser } from "../services/orderService";
 
 export async function createOrder(req: Request, res: Response) {
   const { shoppingCartID, orDelivery, orService, orAddressID } = req.body;
@@ -39,6 +39,31 @@ export async function createOrder(req: Request, res: Response) {
     } catch (err) {
       return res.status(200).send({ code: -1, message: err });
     }
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getOrder(req: Request, res: Response) {
+  console.log("getOrder")
+  try {
+    console.log("getOrder")
+    //@ts-ignore
+    const userID = req.userId; //current user's id
+    const existingUser = await Userschema.findOne({
+      _id: userID,
+    });
+
+    if (!userID || !existingUser) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "User doesn't exist!",
+      });
+    }
+
+    const order = await findOrderByUser(userID);
+    console.log("fjalkjflka",order)
+    return res.status(200).send(order);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }

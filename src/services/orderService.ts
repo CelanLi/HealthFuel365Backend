@@ -3,7 +3,7 @@ import productItemSchema from "../models/productItem";
 import ProductSchema from "../models/product";
 import PromoCodeSchema from "../models/promocode";
 import AddressSchema from "../models/address";
-import OrderSchema from "../models/order";
+import OrderSchema, { OrderInterface } from "../models/order";
 import { calculateSummary } from "./shoppingCartService";
 import BigNumber from "bignumber.js";
 
@@ -102,4 +102,14 @@ export const addOrder = async (
       resolve("success");
     } catch (err) {}
   });
+};
+
+export const findOrderByUser = async (
+  userID: string
+): Promise<OrderInterface[] | null> => {
+  const orders = await OrderSchema.find({
+    userID: userID,
+  });
+  console.log("orders=",orders)
+  return orders;
 };
