@@ -8,9 +8,9 @@ export const findAlternative = async (
   /* common conditions of alternatives */
   const detail = await ProductDetailSchema.find({
     $or: [
-      { fatLevel: "small" },
-      { sugarLevel: "small" }, 
-      { saltLevel: "small" },
+      { fatLevel: "low" },
+      { sugarLevel: "low" }, 
+      { saltLevel: "low" },
     ],
     $nor: [
       { $and: [ { fatLevel: "high" }, { saltLevel : "high" }, { sugarLevel : "high" }]},
@@ -46,8 +46,8 @@ export const findAlternative = async (
   else if (junkFoodType === "2") {
     const betterNutrionProduct= await ProductDetailSchema.find({ 
        sugarLevel: { $ne: "high" },
-       fatLevel: "small",
-       saltLevel: "small"
+       fatLevel: "low",
+       saltLevel: "low"
     });
     const betterNutrionProductIds=betterNutrionProduct.map((productDetail)=> productDetail.productID);
     return getRandomizedAlternatives(await ProductSchema.find({
