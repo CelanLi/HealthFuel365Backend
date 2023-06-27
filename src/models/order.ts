@@ -122,6 +122,30 @@ export const OrderSchema = new mongoose.Schema({
     },
     required: true,
   },
+  itemPrice: {
+    type: Number,
+    default:0,
+    required: true,
+  },
+  totalSaving: {
+    type: Number,
+    default:0,
+    required: true,
+  },
+  subTotal: {
+    type: Number,
+    default:0,
+    required: true,
+  },
+  itemQuantity: {
+    type: Number,
+    default:0,
+    required: true,
+  },
+  codeValue: {
+    type: String,
+    default:"",
+  },
 });
 /* This maps the internal id of the profile
  created by mongoose to the field id when accessed via to JSON */
