@@ -18,4 +18,16 @@ orderRoutes.post(
   orderController.createOrder
 );
 
+orderRoutes.post(
+    "/cancelPayment",
+    checkAuthentication,
+    orderController.cancelPayment
+  );
+
+  orderRoutes.post(
+    "/successPayment",
+    checkAuthentication,
+    orderController.successPayment
+  );
+
 export default orderRoutes;

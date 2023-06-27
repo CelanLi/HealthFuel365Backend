@@ -5,14 +5,17 @@ import PromoCodeSchema from "../models/promocode";
 import PackageAndShippingServiceSchema from "../models/packageAndShippingService";
 import AddressSchema from "../models/address";
 import OrderSchema, { OrderInterface } from "../models/order";
+import PaymentSchema from "../models/payment";
 import { calculateSummary } from "./shoppingCartService";
 import BigNumber from "bignumber.js";
+import payment from "../models/payment";
 
 export const addOrder = async (
   shoppingCartID: string,
   orDelivery: string,
   orService: boolean,
-  orAddressID: string
+  orAddressID: string,
+  paymentID: string
 ): Promise<String> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -85,7 +88,7 @@ export const addOrder = async (
         orderID: newOrder._id,
         userID: shoppingCartID,
         orderDate: year + "-" + month + "-" + date,
-        orderStatus: "Processing",
+        orderStatus: "Unpaid",
         totalPrice: totalPrice,
         orderProducts: productItems,
         trackingNumber: "-",
@@ -98,6 +101,7 @@ export const addOrder = async (
         codeValue: codeValue,
       };
 
+      console.log(orDelivery, orService);
       const service = {
         orderID: newOrder._id,
         // orDelivery: DHL/HERMES/Rapid
@@ -107,14 +111,61 @@ export const addOrder = async (
         sendAsAGift: orService,
       };
 
+      const payment = {
+        orderID: newOrder._id,
+        paymentID: paymentID,
+        paid: year + "-" + month + "-" + date,
+      };
+
       try {
         await OrderSchema.create(order);
         await PackageAndShippingServiceSchema.create(service);
+        await PaymentSchema.create(payment);
       } catch (err) {
         console.log(err);
       }
       resolve("success");
     } catch (err) {}
+  });
+};
+
+export const cancelPayPal = async (paymentID: string) => {
+  const payment = await PaymentSchema.findOne({
+    paymentID: paymentID,
+  });
+  if (!payment) {
+    return "";
+  }
+  const { orderID } = payment;
+  await OrderSchema.updateOne(
+    { orderID: orderID },
+    { $set: { orderStatus: "Cancelled" } }
+  ).catch(() => {
+    return "error";
+  });
+
+  await PaymentSchema
+  .deleteMany({
+    paymentID: paymentID, 
+  })
+  .catch(() => {
+    return "error";
+  });
+};
+
+export const successPayPal = async (paymentID: string) => {
+  const payment = await PaymentSchema.findOne({
+    paymentID: paymentID,
+  });
+  if (!payment) {
+    return "";
+  }
+  const { orderID } = payment;
+  await OrderSchema.updateOne(
+    { orderID: orderID },
+    { $set: { orderStatus: "Processing" } }
+  ).catch(() => {
+    return "error";
   });
 };
 

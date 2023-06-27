@@ -1,5 +1,4 @@
-import * as mongoose from "mongoose";
-import Order from "./order";
+import * as mongoose from "mongoose"; 
 
 export interface PackageAndShippingServiceInterface extends mongoose.Document {
   orderID: string;

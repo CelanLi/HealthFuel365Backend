@@ -8,11 +8,15 @@ import {
   JwtSecret,
 } from "../config";
 import ProfileSchema from "../models/profile";
-import { addOrder, findOrderByUser } from "../services/orderService";
+import {
+  addOrder,
+  findOrderByUser,
+  cancelPayPal,
+  successPayPal,
+} from "../services/orderService";
 
 export async function createOrder(req: Request, res: Response) {
-  const { shoppingCartID, orDelivery, orService, orAddressID } = req.body;
-  console.log("fddqqqqqqqqqqqqqq");
+  const { shoppingCartID, orDelivery, orService, orAddressID, paymentID} = req.body;
   try {
     //error
     if (!shoppingCartID || typeof shoppingCartID != "string") {
@@ -32,9 +36,9 @@ export async function createOrder(req: Request, res: Response) {
         .status(400)
         .json(badRequestErrorMessage("Missing body parameter orAddressID"));
     }
- 
+
     try {
-      await addOrder(shoppingCartID, orDelivery, orService, orAddressID); 
+      await addOrder(shoppingCartID, orDelivery, orService, orAddressID, paymentID);
       return res.status(200).send({ code: 0, message: "sucess" });
     } catch (err) {
       return res.status(200).send({ code: -1, message: err });
@@ -45,9 +49,9 @@ export async function createOrder(req: Request, res: Response) {
 }
 
 export async function getOrder(req: Request, res: Response) {
-  console.log("getOrder")
+  console.log("getOrder");
   try {
-    console.log("getOrder")
+    console.log("getOrder");
     //@ts-ignore
     const userID = req.userId; //current user's id
     const existingUser = await Userschema.findOne({
@@ -62,8 +66,48 @@ export async function getOrder(req: Request, res: Response) {
     }
 
     const order = await findOrderByUser(userID);
-    console.log("fjalkjflka",order)
+    console.log("fjalkjflka", order);
     return res.status(200).send(order);
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function cancelPayment(req: Request, res: Response) {
+  const { paymentID } = req.body;
+  try {
+    //error
+    if (!paymentID || typeof paymentID != "string") {
+      return res
+        .status(400)
+        .json(badRequestErrorMessage("Missing body parameter paymentID"));
+    }
+    try {
+      await cancelPayPal(paymentID);
+      return res.status(200).send({ code: 0, message: "sucess" });
+    } catch (err) {
+      return res.status(200).send({ code: -1, message: err });
+    }
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function successPayment(req: Request, res: Response) {
+  const { paymentID } = req.body;
+  try {
+    //error
+    if (!paymentID || typeof paymentID != "string") {
+      return res
+        .status(400)
+        .json(badRequestErrorMessage("Missing body parameter paymentID"));
+    }
+    try {
+      await successPayPal(paymentID);
+      return res.status(200).send({ code: 0, message: "sucess" });
+    } catch (err) {
+      return res.status(200).send({ code: -1, message: err });
+    }
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
