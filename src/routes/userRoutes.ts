@@ -23,6 +23,6 @@ userRoutes.get("/getorder",checkAuthentication,UserController.getOrder)
 userRoutes.get("/getorderbyid",checkAuthentication,UserController.getOrderById)
 userRoutes.get("/getServiceByOrderId",checkAuthentication,UserController.getServicesByOrderId)
 
-userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
+//userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
 
 export default userRoutes;

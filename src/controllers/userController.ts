@@ -452,9 +452,7 @@ export async function addressEdit(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
-
-
-
+/*
 export async function deleteUser(req: Request, res: Response) {
   const { id } = req.params; //the requested id
   try {
@@ -489,6 +487,7 @@ export async function deleteUser(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
+*/
 
 export async function getOrder(req: Request, res: Response) {
   console.log("getOrder")
