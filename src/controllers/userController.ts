@@ -169,7 +169,7 @@ export async function login(req: Request, res: Response) {
     //check correct password
     const correctPassword = compareSync(password, user.password);
     if (!correctPassword) {
-      res.status(401).json({
+      return res.status(401).json({
         error: "Unauthorized",
         message: "Wrong password",
       });

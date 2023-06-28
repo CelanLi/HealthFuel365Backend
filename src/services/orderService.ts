@@ -75,16 +75,17 @@ export const addOrder = async (
         .toNumber();
 
       const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-      const date = currentDate.getDate();
-
+      // const year = currentDate.getFullYear();
+      // const month = currentDate.getMonth() + 1;
+      // const date = currentDate.getDate();
+      const localDateString = currentDate.toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
       const newOrder = new OrderSchema();
 
       const order = {
         orderID: newOrder._id,
         userID: shoppingCartID,
-        orderDate: year + "-" + month + "-" + date,
+        orderDate: localDateString,
+        // year + "-" + month + "-" + date,
         orderStatus: "Processing",
         totalPrice: totalPrice,
         orderProducts: productItems,
