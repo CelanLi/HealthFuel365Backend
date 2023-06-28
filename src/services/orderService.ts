@@ -2,7 +2,7 @@ import ShoppingCartSchema from "../models/shoppingcart";
 import productItemSchema from "../models/productItem";
 import ProductSchema from "../models/product";
 import PromoCodeSchema from "../models/promocode";
-import PackageAndShippingServiceSchema from "../models/packageAndShippingService";
+import PackageAndShippingServiceSchema, {PackageAndShippingServiceInterface} from "../models/packageAndShippingService";
 import AddressSchema from "../models/address";
 import OrderSchema, { OrderInterface } from "../models/order";
 import PaymentSchema from "../models/payment";
@@ -78,16 +78,17 @@ export const addOrder = async (
         .toNumber();
 
       const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-      const date = currentDate.getDate();
-
+      // const year = currentDate.getFullYear();
+      // const month = currentDate.getMonth() + 1;
+      // const date = currentDate.getDate();
+      const localDateString = currentDate.toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
       const newOrder = new OrderSchema();
 
       const order = {
         orderID: newOrder._id,
         userID: shoppingCartID,
-        orderDate: year + "-" + month + "-" + date,
+        orderDate: localDateString,
+        // year + "-" + month + "-" + date,
         orderStatus: "Unpaid",
         totalPrice: totalPrice,
         orderProducts: productItems,
@@ -190,9 +191,9 @@ export const findOrderById = async (
 
 export const findServicesByOrderId = async (
   orderID: string
-): Promise<OrderInterface[] | null> => {
-  const orders = await OrderSchema.find({
-    _id: orderID,
+): Promise<PackageAndShippingServiceInterface | null> => {
+  const services = await PackageAndShippingServiceSchema.findOne({
+    orderID: orderID,
   });
-  return orders;
+  return services;
 };

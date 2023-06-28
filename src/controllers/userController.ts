@@ -10,11 +10,11 @@ import AddressSchema from "../models/address";
 import ShoppingCartSchema from "../models/shoppingcart";
 
 import { findAddressByUser } from "../services/userService";
-import { findOrderByUser, findOrderById } from "../services/orderService";
+import { findOrderByUser, findOrderById,findServicesByOrderId } from "../services/orderService";
 
 import user from "../models/user";
 import { ConnectionClosedEvent, MongoUnexpectedServerResponseError } from "mongodb";
-import { OrderSchema } from "../models/order";
+import order, { OrderSchema } from "../models/order";
 
 export async function register(req: Request, res: Response) {
   const newUser = new Userschema(req.body);
@@ -169,7 +169,7 @@ export async function login(req: Request, res: Response) {
     //check correct password
     const correctPassword = compareSync(password, user.password);
     if (!correctPassword) {
-      res.status(401).json({
+      return res.status(401).json({
         error: "Unauthorized",
         message: "Wrong password",
       });
@@ -452,9 +452,7 @@ export async function addressEdit(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
-
-
-
+/*
 export async function deleteUser(req: Request, res: Response) {
   const { id } = req.params; //the requested id
   try {
@@ -489,6 +487,7 @@ export async function deleteUser(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
+*/
 
 export async function getOrder(req: Request, res: Response) {
   console.log("getOrder")
@@ -540,15 +539,17 @@ export async function getServicesByOrderId(req: Request, res: Response) {
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
-    const orderID = stringID.substring(8)
-    let order = await findOrderById(orderID);
-    if (!order) {
+    const orderID = stringID;
+    console.log(orderID);
+    let services = await findServicesByOrderId(orderID);
+    if (!services) {
       return res.status(404).json({
         error: "Not Found",
         message: `Order with ID:${orderID} not found!`,
       });
     }
-      return res.status(200).json(order);
+    console.log(services);
+    return res.status(200).json(services);
     }catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
