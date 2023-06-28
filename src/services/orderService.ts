@@ -2,6 +2,7 @@ import ShoppingCartSchema from "../models/shoppingcart";
 import productItemSchema from "../models/productItem";
 import ProductSchema from "../models/product";
 import PromoCodeSchema from "../models/promocode";
+import PackageAndShippingServiceSchema from "../models/packageAndShippingService";
 import AddressSchema from "../models/address";
 import OrderSchema, { OrderInterface } from "../models/order";
 import { calculateSummary } from "./shoppingCartService";
@@ -25,7 +26,6 @@ export const addOrder = async (
       const productItems = await productItemSchema.find({
         shoppingCartID: shoppingCartID,
       });
- 
 
       for (const productItem of productItems) {
         const { product, quantity } = productItem;
@@ -71,14 +71,15 @@ export const addOrder = async (
       const servicePrice = orService ? 1.95 : 0;
       const totalPrice = new BigNumber(shoppingCart.subTotal)
         .plus(new BigNumber(shippingPrice))
-        .plus(new BigNumber(servicePrice)).toNumber();
+        .plus(new BigNumber(servicePrice))
+        .toNumber();
 
       const currentDate = new Date();
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
       const date = currentDate.getDate();
 
-      const newOrder = new OrderSchema(); 
+      const newOrder = new OrderSchema();
 
       const order = {
         orderID: newOrder._id,
@@ -89,16 +90,29 @@ export const addOrder = async (
         orderProducts: productItems,
         trackingNumber: "-",
         shipTo: address,
+
+        itemPrice: shoppingCart.itemPrice,
+        totalSaving: shoppingCart.totalSaving,
+        subTotal: shoppingCart.subTotal,
+        itemQuantity: shoppingCart.itemQuantity,
+        codeValue: codeValue,
       };
 
-      console.log(order);
+      const service = {
+        orderID: newOrder._id,
+        // orDelivery: DHL/HERMES/Rapid
+        //HERMES <= isDHL & rapidShipping: FALSE
+        isDHL: orDelivery === "DHL",
+        rapidShipping: orDelivery === "Rapid",
+        sendAsAGift: orService,
+      };
 
       try {
         await OrderSchema.create(order);
+        await PackageAndShippingServiceSchema.create(service);
       } catch (err) {
         console.log(err);
       }
-
       resolve("success");
     } catch (err) {}
   });
@@ -110,7 +124,7 @@ export const findOrderByUser = async (
   const orders = await OrderSchema.find({
     userID: userID,
   });
-  console.log("orders=",orders)
+  console.log("orders=", orders);
   return orders;
 };
 
