@@ -178,3 +178,21 @@ export const findOrderByUser = async (
   console.log("orders=", orders);
   return orders;
 };
+
+export const findOrderById = async (
+  orderID: string
+): Promise<OrderInterface[] | null> => {
+  const orders = await OrderSchema.find({
+    _id: orderID,
+  });
+  return orders;
+};
+
+export const findServicesByOrderId = async (
+  orderID: string
+): Promise<OrderInterface[] | null> => {
+  const orders = await OrderSchema.find({
+    _id: orderID,
+  });
+  return orders;
+};

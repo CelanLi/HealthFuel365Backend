@@ -10,10 +10,11 @@ import AddressSchema from "../models/address";
 import ShoppingCartSchema from "../models/shoppingcart";
 
 import { findAddressByUser } from "../services/userService";
-import { findOrderByUser } from "../services/orderService";
+import { findOrderByUser, findOrderById } from "../services/orderService";
 
 import user from "../models/user";
-import { MongoUnexpectedServerResponseError } from "mongodb";
+import { ConnectionClosedEvent, MongoUnexpectedServerResponseError } from "mongodb";
+import { OrderSchema } from "../models/order";
 
 export async function register(req: Request, res: Response) {
   const newUser = new Userschema(req.body);
@@ -511,6 +512,44 @@ export async function getOrder(req: Request, res: Response) {
     console.log("orderlist",order)
     return res.status(200).send(order);
   } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getOrderById(req: Request, res: Response) {
+  console.log("getOrderById!")
+  try {
+    //@ts-ignore
+    const stringID = req.query.orderID as string;
+    const orderID = stringID.substring(8)
+    let order = await findOrderById(orderID);
+    if (!order) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Order with ID:${orderID} not found!`,
+      });
+    }
+      return res.status(200).json(order);
+    }catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getServicesByOrderId(req: Request, res: Response) {
+  console.log("getServicesByOrderId!")
+  try {
+    //@ts-ignore
+    const stringID = req.query.orderID as string;
+    const orderID = stringID.substring(8)
+    let order = await findOrderById(orderID);
+    if (!order) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Order with ID:${orderID} not found!`,
+      });
+    }
+      return res.status(200).json(order);
+    }catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
