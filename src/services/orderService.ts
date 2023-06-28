@@ -2,7 +2,7 @@ import ShoppingCartSchema from "../models/shoppingcart";
 import productItemSchema from "../models/productItem";
 import ProductSchema from "../models/product";
 import PromoCodeSchema from "../models/promocode";
-import PackageAndShippingServiceSchema from "../models/packageAndShippingService";
+import PackageAndShippingServiceSchema, {PackageAndShippingServiceInterface} from "../models/packageAndShippingService";
 import AddressSchema from "../models/address";
 import OrderSchema, { OrderInterface } from "../models/order";
 import { calculateSummary } from "./shoppingCartService";
@@ -139,9 +139,9 @@ export const findOrderById = async (
 
 export const findServicesByOrderId = async (
   orderID: string
-): Promise<OrderInterface[] | null> => {
-  const orders = await OrderSchema.find({
-    _id: orderID,
+): Promise<PackageAndShippingServiceInterface | null> => {
+  const services = await PackageAndShippingServiceSchema.findOne({
+    orderID: orderID,
   });
-  return orders;
+  return services;
 };
