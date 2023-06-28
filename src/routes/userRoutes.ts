@@ -20,6 +20,7 @@ userRoutes.delete("/addressdelete",checkAuthentication,UserController.addressDel
 userRoutes.put("/addressedit",checkAuthentication, UserController.addressEdit);
 
 userRoutes.get("/getorder",checkAuthentication,UserController.getOrder)
+userRoutes.get("/getorderbyid",checkAuthentication,UserController.getOrderById)
 
 userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
 
