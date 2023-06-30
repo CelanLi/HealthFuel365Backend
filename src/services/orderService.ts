@@ -146,3 +146,13 @@ export const findServicesByOrderId = async (
   });
   return services;
 };
+
+export const getAllOrders = async (): Promise<OrderInterface[]> => {
+  try {
+    const orders = await OrderSchema.find({});
+
+    return orders;
+  } catch (error) {
+    throw new Error("Failed to retrieve orders");
+  }
+};
