@@ -37,7 +37,7 @@ export async function createOrder(req: Request, res: Response) {
         .json(badRequestErrorMessage("Missing body parameter orAddressID"));
     }
 
-    try {
+    try { 
       await addOrder(shoppingCartID, orDelivery, orService, orAddressID, paymentID);
       return res.status(200).send({ code: 0, message: "sucess" });
     } catch (err) {
@@ -66,7 +66,6 @@ export async function getOrder(req: Request, res: Response) {
     }
 
     const order = await findOrderByUser(userID);
-    console.log("fjalkjflka", order);
     return res.status(200).send(order);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);

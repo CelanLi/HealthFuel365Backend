@@ -24,7 +24,7 @@ export const addOrder = async (
         reject("Please add an shipping address");
         return;
       }
-
+ 
       // Else: 1. capacity management
       const productItems = await productItemSchema.find({
         shoppingCartID: shoppingCartID,
@@ -46,7 +46,7 @@ export const addOrder = async (
           await productDoc.save();
         }
       }
-
+ 
       const shoppingCart = await ShoppingCartSchema.findOne({ shoppingCartID });
 
       if (!shoppingCart) {
@@ -61,8 +61,7 @@ export const addOrder = async (
         // userID=shoppingCartID
         promoCode.usedUser.push(shoppingCartID);
         await promoCode.save();
-      }
-
+      } 
       // Else: 3. clear shopping cart
       await productItemSchema.deleteMany({ shoppingCartID });
       await calculateSummary(shoppingCartID);
@@ -78,12 +77,11 @@ export const addOrder = async (
         .toNumber();
 
       const currentDate = new Date();
-      // const year = currentDate.getFullYear();
-      // const month = currentDate.getMonth() + 1;
-      // const date = currentDate.getDate();
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1;
+      const date = currentDate.getDate();
       const localDateString = currentDate.toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
-      const newOrder = new OrderSchema();
-
+      const newOrder = new OrderSchema(); 
       const order = {
         orderID: newOrder._id,
         userID: shoppingCartID,
@@ -112,6 +110,7 @@ export const addOrder = async (
         sendAsAGift: orService,
       };
 
+      
       const payment = {
         orderID: newOrder._id,
         paymentID: paymentID,
