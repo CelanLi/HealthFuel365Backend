@@ -14,9 +14,9 @@ userRoutes.get("/getuser", checkAuthentication, UserController.getUser);
 userRoutes.put("/profileedit",checkAuthentication, UserController.profileEdit);
 userRoutes.get("/profileget",checkAuthentication, UserController.profileGet);
 
-userRoutes.get("/addressget",checkAuthentication,UserController.addressGet)
-userRoutes.post("/addressadd",checkAuthentication,UserController.addressAdd)
-userRoutes.delete("/addressdelete",checkAuthentication,UserController.addressDelete)
+userRoutes.get("/addressget",checkAuthentication,UserController.addressGet);
+userRoutes.post("/addressadd",checkAuthentication,UserController.addressAdd);
+userRoutes.delete("/addressdelete",checkAuthentication,UserController.addressDelete);
 userRoutes.put("/addressedit",checkAuthentication, UserController.addressEdit);
 
 userRoutes.get("/getorder",checkAuthentication,UserController.getOrder)
