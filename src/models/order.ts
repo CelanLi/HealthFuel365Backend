@@ -5,6 +5,7 @@ import User from './user'
 export interface OrderInterface extends mongoose.Document {
   //interface of mongoose model
   orderID: string;
+  userID: string;
   orderDate: Date;
   orderStatus: OrderStatus;
   totalPrice: number;

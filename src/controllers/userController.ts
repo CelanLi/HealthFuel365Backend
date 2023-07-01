@@ -9,7 +9,7 @@ import ProfileSchema from "../models/profile";
 import AddressSchema from "../models/address";
 import ShoppingCartSchema from "../models/shoppingcart";
 
-import { findAddressByUser } from "../services/userService";
+import { loginUser,findAddressByUser } from "../services/userService";
 import { findOrderByUser, findOrderById,findServicesByOrderId } from "../services/orderService";
 
 import user from "../models/user";
@@ -149,6 +149,15 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   const { username, password } = req.body;
+  // console.log(username, password)
+  // try {
+  //   const result = await loginUser(username, password);
+  //   // 处理成功登录的情况
+  //   console.log("登录成功", result);
+  // } catch (error) {
+  //   // 处理登录失败的情况
+  //   console.log("登录失败", error);
+  // }
   //check for correct params
   console.log("body",req.body)
   if (!username || !password) {
@@ -220,8 +229,6 @@ export async function getUser(req: Request, res: Response) {
   } catch (error) {
     
   }
-  
-  
 }
 
 export async function profileEdit(req: Request, res: Response) {
@@ -367,7 +374,6 @@ export async function addressGet(req: Request, res: Response) {
     }
 
     const address = await findAddressByUser(userID);
-    console.log("fjalkjflka",address)
     return res.status(200).send(address);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);

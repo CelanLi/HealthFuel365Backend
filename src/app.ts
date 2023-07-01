@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import alternativeRoutes from "./routes/alternativeRoutes";
 import adminRoutes from "./routes/adminRoutes";
+import recommendationRoutes from "./routes/recommendationRoutes";
 import { allowCrossDomain } from "./middleware/middleware";
 mongoose.connect(Constants.mongoURI).catch((err) => {
   // eslint-disable-next-line no-console
@@ -36,6 +37,7 @@ app.use("/user",userRoutes);
 app.use("/alternative", alternativeRoutes);
 app.use("/order", orderRoutes);
 app.use("/admin", adminRoutes);
+app.use("/recommendation", recommendationRoutes);
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
