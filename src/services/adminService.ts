@@ -1,7 +1,8 @@
 import Userschema, { User } from "../models/user";
 import ProfileSchema, { ProfileInterface } from "../models/profile";
 import PromoCodeSchema, { Promocode } from "../models/promocode";
-import { Double } from "mongodb";
+import OrderSchema, { OrderInterface } from "../models/order";
+import PackageAndShippingServiceSchema, { PackageAndShippingServiceInterface } from "../models/packageAndShippingService";
 
 export const findAllUsersWithProfiles = async (): Promise<
   [User[], ProfileInterface[]] | null
@@ -129,4 +130,25 @@ export const editPromoCode = async (
       resolve("success");
     } catch (err) {}
   });
+};
+
+export const findAllOrdersWithService = async (
+): Promise<[OrderInterface[],PackageAndShippingServiceInterface[]]> => {
+  try {
+    const orders = await OrderSchema.find();
+    // extract order IDS
+    const orderIDs = orders.map((order) => order.orderID);
+    // find corresponding services
+    const services = await PackageAndShippingServiceSchema.find({ orderID : { $in:orderIDs}});
+    return [orders,services];
+  } catch (error) {
+    throw new Error("Failed to retrieve orders");
+  }
+};
+
+export const editOrder = async (orderID: string, status: string, trackingnumber: string) => {
+  await OrderSchema.findOneAndUpdate(
+    { orderID: orderID },
+    { $set: { orderStatus: status, trackingNumber: trackingnumber } }
+  );
 };
