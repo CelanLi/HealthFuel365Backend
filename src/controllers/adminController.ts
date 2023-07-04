@@ -114,7 +114,11 @@ export async function addPromoCode(req: Request, res: Response) {
 }
 
 export async function getAllOrdersWithService(req: Request, res: Response) {
-  const keyWords = req.params.keyWords;
+  let { keyWords } = req.query;
+  if (!keyWords || typeof keyWords != "string") {
+    keyWords = "";
+  }
+  console.log("keywords"+ keyWords);
   try {
     const orders_service = await findAllOrdersWithService(keyWords);
     return res.status(200).send(orders_service);
