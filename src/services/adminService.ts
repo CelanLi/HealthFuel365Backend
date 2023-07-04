@@ -152,3 +152,13 @@ export const editOrder = async (orderID: string, status: string, trackingnumber:
     { $set: { orderStatus: status, trackingNumber: trackingnumber } }
   );
 };
+
+export const findOrderById = async (
+  orderID: string
+): Promise<OrderInterface | null> => {
+  const order = await OrderSchema.findOne({
+    orderID: orderID,
+  });
+  console.log(order)
+  return order;
+};

@@ -9,7 +9,8 @@ import {
   editPromoCode,
   createPromoCode,
   findAllOrdersWithService,
-  editOrder
+  editOrder,
+  findOrderById
 } from "../services/adminService";
 import PromoCodeSchema from "../models/promocode";
 
@@ -115,7 +116,7 @@ export async function addPromoCode(req: Request, res: Response) {
 export async function getAllOrdersWithService(req: Request, res: Response) {
   try {
     const orders_service = await findAllOrdersWithService();
-    return res.status(200).send(orders_service );
+    return res.status(200).send(orders_service);
   } catch (error) {
     console.error(error);
     return res.status(500).json(internalServerErrorMessage);
@@ -133,6 +134,24 @@ export async function updateOrder(req: Request, res: Response) {
       message: "Order update successfully",
     });
   } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getOrderById(req: Request, res: Response) {
+  try {
+    console.log("controller id");
+    const orderID = req.params.orderID;
+    console.log(orderID);
+    const order = await findOrderById(orderID);
+    if (!order) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: `Order with ID:${orderID} not found!`,
+      });
+    }
+    return res.status(200).send(order);
+    }catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }

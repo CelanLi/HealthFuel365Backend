@@ -16,6 +16,7 @@ adminRoutes.post("/updatePromoCode", AdminController.updatePromoCode);
 adminRoutes.post("/addPromoCode" ,AdminController.addPromoCode);
 
 adminRoutes.get("/orders",AdminController.getAllOrdersWithService);
-adminRoutes.put("/orders/update/:orderID/:status/:trackingnumber",AdminController.updateOrder)
+adminRoutes.get("/getOrder/:orderID",AdminController.getOrderById);
+adminRoutes.put("/orders/update/:orderID/:status/:trackingnumber",AdminController.updateOrder);
 
 export default adminRoutes;
