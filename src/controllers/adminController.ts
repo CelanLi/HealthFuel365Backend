@@ -114,8 +114,9 @@ export async function addPromoCode(req: Request, res: Response) {
 }
 
 export async function getAllOrdersWithService(req: Request, res: Response) {
+  const keyWords = req.params.keyWords;
   try {
-    const orders_service = await findAllOrdersWithService();
+    const orders_service = await findAllOrdersWithService(keyWords);
     return res.status(200).send(orders_service);
   } catch (error) {
     console.error(error);
@@ -127,7 +128,6 @@ export async function updateOrder(req: Request, res: Response) {
   const orderID = req.params.orderID;
   const status = req.params.status;
   const trackingnumber = req.params.trackingnumber;
-  console.log("update order controller")
   try {
     await editOrder(orderID, status, trackingnumber);
     return res.status(200).json({
