@@ -87,7 +87,7 @@ export const addOrder = async (
         userID: shoppingCartID,
         orderDate: localDateString,
         // year + "-" + month + "-" + date,
-        orderStatus: "Unpaid",
+        orderStatus: "Processing",
         totalPrice: totalPrice,
         orderProducts: productItems,
         trackingNumber: "-",

@@ -2,7 +2,9 @@ import Userschema, { User } from "../models/user";
 import ProfileSchema, { ProfileInterface } from "../models/profile";
 import PromoCodeSchema, { Promocode } from "../models/promocode";
 import OrderSchema, { OrderInterface } from "../models/order";
-import PackageAndShippingServiceSchema, { PackageAndShippingServiceInterface } from "../models/packageAndShippingService";
+import PackageAndShippingServiceSchema, {
+  PackageAndShippingServiceInterface,
+} from "../models/packageAndShippingService";
 
 export const findAllUsersWithProfiles = async (): Promise<
   [User[], ProfileInterface[]] | null
@@ -132,21 +134,48 @@ export const editPromoCode = async (
   });
 };
 
-export const findAllOrdersWithService = async (
-): Promise<[OrderInterface[],PackageAndShippingServiceInterface[]]> => {
+export const findAllOrdersWithService = async (): Promise<
+  [OrderInterface[], PackageAndShippingServiceInterface[]]
+> => {
   try {
     const orders = await OrderSchema.find();
     // extract order IDS
     const orderIDs = orders.map((order) => order.orderID);
     // find corresponding services
-    const services = await PackageAndShippingServiceSchema.find({ orderID : { $in:orderIDs}});
-    return [orders,services];
+    const services = await PackageAndShippingServiceSchema.find({
+      orderID: { $in: orderIDs },
+    });
+    return [orders, services];
   } catch (error) {
     throw new Error("Failed to retrieve orders");
   }
 };
 
-export const editOrder = async (orderID: string, status: string, trackingnumber: string) => {
+export const editOrder = async (
+  orderID: string,
+  status: string,
+  trackingnumber: string
+) => {
+  const userIdItem = await OrderSchema.findOne({ orderID: orderID }, "userID");
+
+  const codeItem = await OrderSchema.findOne({ orderID: orderID }, "codeValue");
+
+  if (!codeItem || !userIdItem) {
+    return;
+  }
+
+  const { codeValue } = codeItem;
+
+  if (status === "Cancelled" && codeValue) {
+    try {
+      await PromoCodeSchema.updateOne(
+        { code: codeValue },
+        { $pull: { usedUser: userIdItem?.userID } }
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  }
   await OrderSchema.findOneAndUpdate(
     { orderID: orderID },
     { $set: { orderStatus: status, trackingNumber: trackingnumber } }
@@ -159,6 +188,6 @@ export const findOrderById = async (
   const order = await OrderSchema.findOne({
     orderID: orderID,
   });
-  console.log(order)
+  console.log(order);
   return order;
 };
