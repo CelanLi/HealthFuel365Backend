@@ -134,11 +134,18 @@ export const editPromoCode = async (
   });
 };
 
-export const findAllOrdersWithService = async (): Promise<
-  [OrderInterface[], PackageAndShippingServiceInterface[]]
-> => {
+export const findAllOrdersWithService = async (keyWords: string): Promise<
+  [OrderInterface[],PackageAndShippingServiceInterface[]]> => {
   try {
-    const orders = await OrderSchema.find();
+    let orders: OrderInterface[] = []; 
+    if( keyWords === ""){
+      orders = await OrderSchema.find();
+    }
+    else{
+      orders = await OrderSchema.find({
+        orderID: { $regex: keyWords, $options: "i" },
+      });
+    }
     // extract order IDS
     const orderIDs = orders.map((order) => order.orderID);
     // find corresponding services
