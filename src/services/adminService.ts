@@ -8,10 +8,18 @@ import PackageAndShippingServiceSchema, {
 import Productschema, { ProductSchema } from "../models/product";
 import ProductDetail from "../models/productDetail";
 
-export const findAllUsersWithProfiles = async (): Promise<
+export const findAllUsersWithProfiles = async (
+  keyWords: string): Promise<
   [User[], ProfileInterface[]] | null
 > => {
-  const users = await Userschema.find();
+  let users: User[] = [];
+  if (keyWords === "") {
+    users = await Userschema.find();
+  } else {
+    users = await Userschema.find({   
+      username: { $regex: keyWords, $options: "i" },
+    });
+  }
   // Extract user IDs
   const userIDs = users.map((user) => user._id);
   // Find corresponding profiles
@@ -200,6 +208,7 @@ export const findOrderById = async (
   console.log(order);
   return order;
 };
+
 export async function findProductsWithDetails() {
   const products = await Productschema.find();
   const productIDs = products.map((product) => product.productID);
@@ -207,17 +216,20 @@ export async function findProductsWithDetails() {
   const details = await ProductDetail.find({ productID: { $in: productIDs } });
   return [products, details];
 }
+
 export async function findProductWithDetail(productID: string) {
   const product = await Productschema.findOne({ productID: productID });
   const detail = await ProductDetail.findOne({ productID: productID });
   return [product, detail];
 }
+
 export async function removeProduct(productID: string) {
   const result1 = await Productschema.deleteOne({ productID: productID });
   const result2 = await ProductDetail.deleteOne({ productID: productID });
   console.log(JSON.stringify(result1));
   return result1;
 }
+
 export async function postProduct(
   productID: string,
   category: string,
