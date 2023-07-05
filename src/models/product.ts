@@ -4,11 +4,11 @@ import {} from "./types";
 export interface ProductInterface extends mongoose.Document {
   productID: string;
   category: string;
-  imageUrl: string | undefined;
-  nutriScore: string;
-  capacity?: number;
-  productBrand?: string;
-  productPrice?: number;
+  imageUrl: string;
+  nutriScore: string | undefined;
+  capacity: number;
+  productBrand: string;
+  productPrice: number;
   productName: string;
 }
 
@@ -20,11 +20,11 @@ export const ProductSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: false,
+    required: true,
   },
   imageUrl: {
     type: String,
-    required: false,
+    required: true,
   },
   nutriScore: {
     type: String,
@@ -32,19 +32,19 @@ export const ProductSchema = new mongoose.Schema({
   },
   capacity: {
     type: Number,
-    required: false,
+    required: true,
   },
   productBrand: {
     type: String,
-    required: false,
+    required: true,
   },
   productPrice: {
     type: Number,
-    required: false,
+    required: true,
   },
   productName: {
     type: String,
-    required: false,
+    required: true,
   },
 });
 /* This maps the internal id of the product

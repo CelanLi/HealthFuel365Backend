@@ -10,9 +10,14 @@ import {
   createPromoCode,
   findAllOrdersWithService,
   editOrder,
-  findOrderById
+  findOrderById,
+  findProductsWithDetails,
+  findProductWithDetail,
+  removeProduct,
 } from "../services/adminService";
 import PromoCodeSchema from "../models/promocode";
+import Productschema from "../models/product";
+import ProductDetail from "../models/productDetail";
 
 export async function getAllUsersWithProfiles(req: Request, res: Response) {
   try {
@@ -50,8 +55,9 @@ export async function updateUserEmail(req: Request, res: Response) {
 }
 
 export async function getAllPromoCode(req: Request, res: Response) {
-  const { keyWords = "" } = req.query || {}; 
+  const { keyWords = "" } = req.query || {};
   try {
+    //@ts-ignore
     const promocode = await findAllPromoCodes(keyWords);
     return res.status(200).send(promocode);
   } catch (error) {
@@ -118,7 +124,7 @@ export async function getAllOrdersWithService(req: Request, res: Response) {
   if (!keyWords || typeof keyWords != "string") {
     keyWords = "";
   }
-  console.log("keywords"+ keyWords);
+  console.log("keywords" + keyWords);
   try {
     const orders_service = await findAllOrdersWithService(keyWords);
     return res.status(200).send(orders_service);
@@ -155,7 +161,141 @@ export async function getOrderById(req: Request, res: Response) {
       });
     }
     return res.status(200).send(order);
-    }catch (error) {
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+export async function getProductsWithDetails(req: Request, res: Response) {
+  try {
+    const productsWithDetails = await findProductsWithDetails();
+    return res.status(200).send(productsWithDetails);
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+export async function getProductWithDetail(req: Request, res: Response) {
+  try {
+    const { productID } = req.params;
+    const productWithDetail = await findProductWithDetail(productID);
+    return res.status(200).send(productWithDetail);
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function deleteProduct(req: Request, res: Response) {
+  try {
+    const { productID } = req.params;
+    const result = await removeProduct(productID);
+    return res.status(200).json({
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function addProduct(req: Request, res: Response) {
+  const product = new Productschema({
+    productID: req.body.productID,
+    category: req.body.category,
+    imageUrl: req.body.imageUrl,
+    nutriScore: req.body.nutriScore,
+    capacity: req.body.capacity,
+    productBrand: req.body.productBrand,
+    productPrice: req.body.productPrice,
+    productName: req.body.productName,
+  });
+  try {
+    const created_product = await product.save();
+    const updated_product = await Productschema.findOneAndUpdate(
+      //replace productID wuth _id
+      {
+        _id: created_product._id,
+      },
+      { productID: created_product._id },
+      { new: true }
+    );
+    const detail = new ProductDetail({
+      productID: updated_product?.productID,
+      vegan: req.body.vegan,
+      vegetarian: req.body.vegetarian,
+      fat: req.body.fat,
+      sugar: req.body.sugar,
+      salt: req.body.salt,
+      fatLevel: req.body.fatLevel,
+      sugarLevel: req.body.sugarLevel,
+      saltLevel: req.body.saltLevel,
+      productDescription: req.body.productDescription,
+    });
+    const created_detail = await detail.save();
+    return res.status(200).json({
+      message: "Product added successfully",
+    });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function updateProduct(req: Request, res: Response) {
+  console.log("in updateProduct");
+  const product = new Productschema({
+    productID: req.body.productID,
+    category: req.body.category,
+    imageUrl: req.body.imageUrl,
+    nutriScore: req.body.nutriScore,
+    capacity: req.body.capacity,
+    productBrand: req.body.productBrand,
+    productPrice: req.body.productPrice,
+    productName: req.body.productName,
+  });
+  const detail = new ProductDetail({
+    productID: req.body.productID,
+    vegan: req.body.vegan,
+    vegetarian: req.body.vegetarian,
+    fat: req.body.fat,
+    sugar: req.body.sugar,
+    salt: req.body.salt,
+    fatLevel: req.body.fatLevel,
+    sugarLevel: req.body.sugarLevel,
+    saltLevel: req.body.saltLevel,
+    productDescription: req.body.description,
+  });
+
+  try {
+    console.log(JSON.stringify(product));
+    const created_product = await Productschema.findOneAndUpdate(
+      { productID: req.body.productID },
+      {
+        category: req.body.category,
+        imageUrl: req.body.imageUrl,
+        nutriScore: req.body.nutriScore,
+        capacity: req.body.capacity,
+        productBrand: req.body.productBrand,
+        productPrice: req.body.productPrice,
+        productName: req.body.productName,
+      }
+    );
+    // const created_detail = await detail.save();
+    console.log(JSON.stringify(req.body.description));
+    const created_detail = await ProductDetail.findOneAndUpdate(
+      { productID: req.body.productID },
+      {
+        vegan: req.body.vegan,
+        vegetarian: req.body.vegetarian,
+        fat: req.body.fat,
+        sugar: req.body.sugar,
+        salt: req.body.salt,
+        fatLevel: req.body.fatLevel,
+        sugarLevel: req.body.sugarLevel,
+        saltLevel: req.body.saltLevel,
+        productDescription: req.body.description,
+      }
+    );
+    return res.status(200).json({
+      message: "Product updated successfully",
+    });
+  } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }

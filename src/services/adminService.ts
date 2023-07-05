@@ -5,6 +5,8 @@ import OrderSchema, { OrderInterface } from "../models/order";
 import PackageAndShippingServiceSchema, {
   PackageAndShippingServiceInterface,
 } from "../models/packageAndShippingService";
+import Productschema, { ProductSchema } from "../models/product";
+import ProductDetail from "../models/productDetail";
 
 export const findAllUsersWithProfiles = async (): Promise<
   [User[], ProfileInterface[]] | null
@@ -134,14 +136,14 @@ export const editPromoCode = async (
   });
 };
 
-export const findAllOrdersWithService = async (keyWords: string): Promise<
-  [OrderInterface[],PackageAndShippingServiceInterface[]]> => {
+export const findAllOrdersWithService = async (
+  keyWords: string
+): Promise<[OrderInterface[], PackageAndShippingServiceInterface[]]> => {
   try {
-    let orders: OrderInterface[] = []; 
-    if( keyWords === ""){
+    let orders: OrderInterface[] = [];
+    if (keyWords === "") {
       orders = await OrderSchema.find();
-    }
-    else{
+    } else {
       orders = await OrderSchema.find({
         orderID: { $regex: keyWords, $options: "i" },
       });
@@ -198,3 +200,43 @@ export const findOrderById = async (
   console.log(order);
   return order;
 };
+export async function findProductsWithDetails() {
+  const products = await Productschema.find();
+  const productIDs = products.map((product) => product.productID);
+  // Find corresponding profiles
+  const details = await ProductDetail.find({ productID: { $in: productIDs } });
+  return [products, details];
+}
+export async function findProductWithDetail(productID: string) {
+  const product = await Productschema.findOne({ productID: productID });
+  const detail = await ProductDetail.findOne({ productID: productID });
+  return [product, detail];
+}
+export async function removeProduct(productID: string) {
+  const result1 = await Productschema.deleteOne({ productID: productID });
+  const result2 = await ProductDetail.deleteOne({ productID: productID });
+  console.log(JSON.stringify(result1));
+  return result1;
+}
+export async function postProduct(
+  productID: string,
+  category: string,
+  imageUrl: string,
+  nutriScore: string | undefined,
+  capacity: number,
+  productBrand: string,
+  productPrice: number,
+  productName: string
+) {
+  const createdProduct = await Productschema.create({
+    productID: productID,
+    category: category,
+    imageUrl: imageUrl,
+    nutriScore: nutriScore,
+    capacity: capacity,
+    productBrand: productBrand,
+    productPrice: productPrice,
+    productName: productName,
+  });
+  return createdProduct;
+}
