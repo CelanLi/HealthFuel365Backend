@@ -15,7 +15,7 @@ adminRoutes.post("/deletePromoCode", AdminController.deletePromoCode);
 adminRoutes.post("/updatePromoCode", AdminController.updatePromoCode);
 adminRoutes.post("/addPromoCode" ,AdminController.addPromoCode);
 
-adminRoutes.get("/orders/:keyWords",AdminController.getAllOrdersWithService);
+adminRoutes.get("/orders",AdminController.getAllOrdersWithService);
 adminRoutes.get("/getOrder/:orderID",AdminController.getOrderById);
 adminRoutes.put("/orders/update/:orderID/:status/:trackingnumber",AdminController.updateOrder);
 
