@@ -163,26 +163,26 @@ export const editOrder = async (
   status: string,
   trackingnumber: string
 ) => {
-  const userIdItem = await OrderSchema.findOne({ orderID: orderID }, "userID");
+  // const userIdItem = await OrderSchema.findOne({ orderID: orderID }, "userID");
 
-  const codeItem = await OrderSchema.findOne({ orderID: orderID }, "codeValue");
+  // const codeItem = await OrderSchema.findOne({ orderID: orderID }, "codeValue");
 
-  if (!codeItem || !userIdItem) {
-    return;
-  }
+  // if (!codeItem || !userIdItem) {
+  //   return;
+  // }
 
-  const { codeValue } = codeItem;
+  // const { codeValue } = codeItem;
 
-  if (status === "Cancelled" && codeValue) {
-    try {
-      await PromoCodeSchema.updateOne(
-        { code: codeValue },
-        { $pull: { usedUser: userIdItem?.userID } }
-      );
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // if (status === "Cancelled" && codeValue) {
+  //   try {
+  //     await PromoCodeSchema.updateOne(
+  //       { code: codeValue },
+  //       { $pull: { usedUser: userIdItem?.userID } }
+  //     );
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
   await OrderSchema.findOneAndUpdate(
     { orderID: orderID },
     { $set: { orderStatus: status, trackingNumber: trackingnumber } }
