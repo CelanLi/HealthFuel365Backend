@@ -1,11 +1,11 @@
 import ShoppingCartSchema from "../models/shoppingcart";
 import productItemSchema from "../models/productItem";
 import ProductSchema from "../models/product";
-import PromoCodeSchema from "../models/promocode";
+import PromoCodeSchema, {Promocode} from "../models/promocode";
 import PackageAndShippingServiceSchema, {PackageAndShippingServiceInterface} from "../models/packageAndShippingService";
 import AddressSchema from "../models/address";
 import OrderSchema, { OrderInterface } from "../models/order";
-import PaymentSchema from "../models/payment";
+import PaymentSchema, {PaymentInterface} from "../models/payment";
 import { calculateSummary } from "./shoppingCartService";
 import BigNumber from "bignumber.js";
 import payment from "../models/payment";
@@ -181,9 +181,9 @@ export const findOrderByUser = async (
 
 export const findOrderById = async (
   orderID: string
-): Promise<OrderInterface[] | null> => {
-  const orders = await OrderSchema.find({
-    _id: orderID,
+): Promise<OrderInterface | null> => {
+  const orders = await OrderSchema.findOne({
+    orderID: orderID,
   });
   return orders;
 };
@@ -195,6 +195,24 @@ export const findServicesByOrderId = async (
     orderID: orderID,
   });
   return services;
+};
+
+export const findPaymentByOrderId = async (
+  orderID: string
+): Promise<PaymentInterface | null> => {
+  const payment = await PaymentSchema.findOne({
+    orderID: orderID,
+  });
+  return payment;
+};
+
+export const findPromododeByCode = async (
+  code: string
+): Promise<Promocode | null> => {
+  const promocode = await PromoCodeSchema.findOne({
+    code: code,
+  });
+  return promocode;
 };
 
 export const getAllOrders = async (): Promise<OrderInterface[]> => {

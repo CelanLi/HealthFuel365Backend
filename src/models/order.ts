@@ -12,6 +12,7 @@ export interface OrderInterface extends mongoose.Document {
   orderProducts: ProductItem[];
   trackingNumber: string;
   shipTo: IAddress;
+  codeValue: string;
 }
 
 export const OrderSchema = new mongoose.Schema({

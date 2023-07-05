@@ -10,11 +10,12 @@ import AddressSchema from "../models/address";
 import ShoppingCartSchema from "../models/shoppingcart";
 
 import { loginUser,findAddressByUser } from "../services/userService";
-import { findOrderByUser, findOrderById,findServicesByOrderId } from "../services/orderService";
+import { findOrderByUser, findOrderById, findServicesByOrderId, findPaymentByOrderId, findPromododeByCode } from "../services/orderService";
 
 import user from "../models/user";
 import { ConnectionClosedEvent, MongoUnexpectedServerResponseError } from "mongodb";
 import order, { OrderSchema } from "../models/order";
+import promocode from "../models/promocode";
 
 export async function register(req: Request, res: Response) {
   const newUser = new Userschema(req.body);
@@ -527,6 +528,7 @@ export async function getOrderById(req: Request, res: Response) {
     //@ts-ignore
     const stringID = req.query.orderID as string;
     const orderID = stringID.substring(8)
+    console.log("getOrderById!11",orderID)
     let order = await findOrderById(orderID);
     if (!order) {
       return res.status(404).json({
@@ -556,6 +558,51 @@ export async function getServicesByOrderId(req: Request, res: Response) {
     }
     console.log(services);
     return res.status(200).json(services);
+    }catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getPaymentByOrderId(req: Request, res: Response) {
+  console.log("getPaymentByOrderId!")
+  try {
+    //@ts-ignore
+    const stringID = req.query.orderID as string;
+    const orderID = stringID.substring(8);
+    console.log("getPaymentByOrderId!111",orderID);
+    let payment = await findPaymentByOrderId(orderID);
+    if (!payment) {
+      return res.status(200).json({
+        message: `Payment with order ID: ${orderID} not found!`,
+        payment: null,
+      });
+    }
+    console.log(payment);
+    return res.status(200).json({payment:payment});
+    }catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
+
+export async function getPromocodeByOrderId(req: Request, res: Response) {
+  console.log("getPromocodeByOrderId!")
+  try {
+    //@ts-ignore
+    const stringID = req.query.orderID as string;
+    const orderID = stringID.substring(8);
+    let order = await findOrderById(orderID);
+    if (order && order.codeValue) {
+      let promocode = await findPromododeByCode(order.codeValue);
+      if (!promocode) {
+        return res.status(200).json({promocode: null});
+      }
+      else{
+        return res.status(200).json({promocode:promocode});
+      }      
+    }
+    else{
+      return res.status(200).json({promocode: null});
+    }
     }catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }

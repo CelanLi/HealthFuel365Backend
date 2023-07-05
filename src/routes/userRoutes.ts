@@ -22,6 +22,8 @@ userRoutes.put("/addressedit",checkAuthentication, UserController.addressEdit);
 userRoutes.get("/getorder",checkAuthentication,UserController.getOrder)
 userRoutes.get("/getorderbyid",checkAuthentication,UserController.getOrderById)
 userRoutes.get("/getServiceByOrderId",checkAuthentication,UserController.getServicesByOrderId)
+userRoutes.get("/getPaymentByOrderId",checkAuthentication,UserController.getPaymentByOrderId)
+userRoutes.get("/getPromocodeByOrderId",checkAuthentication,UserController.getPromocodeByOrderId)
 
 //userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
 
