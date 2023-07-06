@@ -206,6 +206,7 @@ export async function addProduct(req: Request, res: Response) {
     productPrice: req.body.productPrice,
     productName: req.body.productName,
   });
+  console.log(JSON.stringify(product));
   try {
     const created_product = await product.save();
     const updated_product = await Productschema.findOneAndUpdate(
@@ -216,10 +217,11 @@ export async function addProduct(req: Request, res: Response) {
       { productID: created_product._id },
       { new: true }
     );
+    console.log(JSON.stringify(typeof req.body.vegan) + "uuuuuuuuuuu");
     const detail = new ProductDetail({
-      productID: updated_product?.productID,
-      vegan: req.body.vegan,
-      vegetarian: req.body.vegetarian,
+      productID: created_product._id,
+      vegan: req.body.vegan === "True" ? true : false,
+      vegetarian: req.body.vegetarian === "True" ? true : false,
       fat: req.body.fat,
       sugar: req.body.sugar,
       salt: req.body.salt,
@@ -228,7 +230,9 @@ export async function addProduct(req: Request, res: Response) {
       saltLevel: req.body.saltLevel,
       productDescription: req.body.productDescription,
     });
+    console.log(JSON.stringify(detail));
     const created_detail = await detail.save();
+    console.log(JSON.stringify(created_detail) + "ddddddddd");
     return res.status(200).json({
       message: "Product added successfully",
     });
@@ -251,15 +255,15 @@ export async function updateProduct(req: Request, res: Response) {
   });
   const detail = new ProductDetail({
     productID: req.body.productID,
-    vegan: req.body.vegan,
-    vegetarian: req.body.vegetarian,
+    vegan: req.body.vegan === "True" ? true : false,
+    vegetarian: req.body.vegetarian === "True" ? true : false,
     fat: req.body.fat,
     sugar: req.body.sugar,
     salt: req.body.salt,
     fatLevel: req.body.fatLevel,
     sugarLevel: req.body.sugarLevel,
     saltLevel: req.body.saltLevel,
-    productDescription: req.body.description,
+    productDescription: req.body.productDescription,
   });
 
   try {
@@ -281,8 +285,8 @@ export async function updateProduct(req: Request, res: Response) {
     const created_detail = await ProductDetail.findOneAndUpdate(
       { productID: req.body.productID },
       {
-        vegan: req.body.vegan,
-        vegetarian: req.body.vegetarian,
+        vegan: req.body.vegan === "True" ? true : false,
+        vegetarian: req.body.vegetarian === "True" ? true : false,
         fat: req.body.fat,
         sugar: req.body.sugar,
         salt: req.body.salt,
