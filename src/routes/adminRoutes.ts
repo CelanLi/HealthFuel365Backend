@@ -21,6 +21,7 @@ adminRoutes.put(
   "/orders/update/:orderID/:status/:trackingnumber",
   AdminController.updateOrder
 );
+
 adminRoutes.get("/products", AdminController.getProductsWithDetails);
 adminRoutes.get(
   "/products/edit/:productID",

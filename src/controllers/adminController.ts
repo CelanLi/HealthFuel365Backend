@@ -20,8 +20,12 @@ import Productschema from "../models/product";
 import ProductDetail from "../models/productDetail";
 
 export async function getAllUsersWithProfiles(req: Request, res: Response) {
+  let { keyWords } = req.query;
+  if (!keyWords || typeof keyWords != "string") {
+    keyWords = "";
+  }
   try {
-    const user_profile = await findAllUsersWithProfiles();
+    const user_profile = await findAllUsersWithProfiles(keyWords);
     return res.status(200).send(user_profile);
   } catch (error) {
     console.error(error);
@@ -165,6 +169,7 @@ export async function getOrderById(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
+
 export async function getProductsWithDetails(req: Request, res: Response) {
   try {
     const productsWithDetails = await findProductsWithDetails();
@@ -173,6 +178,7 @@ export async function getProductsWithDetails(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
+
 export async function getProductWithDetail(req: Request, res: Response) {
   try {
     const { productID } = req.params;
