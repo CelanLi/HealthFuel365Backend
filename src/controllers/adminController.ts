@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { badRequestErrorMessage, internalServerErrorMessage } from "../config";
+import { JwtSecret, internalServerErrorMessage } from "../config";
 import {
   findAllUsersWithProfiles,
   deleteUser,
@@ -15,6 +15,7 @@ import {
   findProductWithDetail,
   removeProduct,
 } from "../services/adminService";
+import AdministratorSchema from "../models/administrator";
 import Productschema from "../models/product";
 import ProductDetail from "../models/productDetail";
 import jwt from "jsonwebtoken";
