@@ -212,7 +212,6 @@ export async function addProduct(req: Request, res: Response) {
     productPrice: req.body.productPrice,
     productName: req.body.productName,
   });
-  console.log(JSON.stringify(product));
   try {
     const created_product = await product.save();
     const updated_product = await Productschema.findOneAndUpdate(
@@ -223,7 +222,6 @@ export async function addProduct(req: Request, res: Response) {
       { productID: created_product._id },
       { new: true }
     );
-    console.log(JSON.stringify(typeof req.body.vegan) + "uuuuuuuuuuu");
     const detail = new ProductDetail({
       productID: created_product._id,
       vegan: req.body.vegan === "True" ? true : false,
@@ -273,7 +271,6 @@ export async function updateProduct(req: Request, res: Response) {
   });
 
   try {
-    console.log(JSON.stringify(product));
     const created_product = await Productschema.findOneAndUpdate(
       { productID: req.body.productID },
       {
@@ -287,7 +284,7 @@ export async function updateProduct(req: Request, res: Response) {
       }
     );
     // const created_detail = await detail.save();
-    console.log(JSON.stringify(req.body.description));
+    console.log(JSON.stringify(req.body.productDescription));
     const created_detail = await ProductDetail.findOneAndUpdate(
       { productID: req.body.productID },
       {
@@ -299,7 +296,7 @@ export async function updateProduct(req: Request, res: Response) {
         fatLevel: req.body.fatLevel,
         sugarLevel: req.body.sugarLevel,
         saltLevel: req.body.saltLevel,
-        productDescription: req.body.description,
+        productDescription: req.body.productDescription,
       }
     );
     return res.status(200).json({
