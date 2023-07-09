@@ -15,9 +15,54 @@ import {
   findProductWithDetail,
   removeProduct,
 } from "../services/adminService";
-import PromoCodeSchema from "../models/promocode";
 import Productschema from "../models/product";
 import ProductDetail from "../models/productDetail";
+import jwt from "jsonwebtoken";
+
+export async function login(req: Request, res: Response) {
+  console.log("admin");
+  const { adminID, password } = req.body;
+  console.log("body",req.body)
+  if (!adminID || !password) {
+    return res.status(400).json({
+      error: "Bad Request",
+      message: "Missing param: " + (adminID? "password" : "adminID"),
+    });
+  }
+  try {
+    //find admin
+    const admin = await AdministratorSchema.findOne({ adminID: adminID });
+    if (!admin) {
+      return res.status(404).json({
+        error: "Not Found",
+        message: "Admin not found",
+      });
+    }
+    //check correct password
+    if (password!==admin.password) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Wrong password",
+      });
+    }
+    const expirationTime = 86400; // expires in 24 hours
+    // create a token
+    const token = jwt.sign(
+      { id: admin.id, adminID: admin.adminID },
+      JwtSecret,
+      {
+        expiresIn: expirationTime, // expires in 24 hours
+      }
+    );
+    console.log(token)
+    return res.status(200).json({
+      token: token,
+      expiresIn: expirationTime,
+    });
+  } catch (error) {
+    return res.status(500).json(internalServerErrorMessage);
+  }
+}
 
 export async function getAllUsersWithProfiles(req: Request, res: Response) {
   let { keyWords } = req.query;
