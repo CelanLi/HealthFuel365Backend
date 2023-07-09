@@ -5,18 +5,20 @@ import OrderSchema, { OrderInterface } from "../models/order";
 import PackageAndShippingServiceSchema, {
   PackageAndShippingServiceInterface,
 } from "../models/packageAndShippingService";
-import Productschema, { ProductSchema } from "../models/product";
+import Productschema, {
+  ProductInterface,
+  ProductSchema,
+} from "../models/product";
 import ProductDetail from "../models/productDetail";
 
 export const findAllUsersWithProfiles = async (
-  keyWords: string): Promise<
-  [User[], ProfileInterface[]] | null
-> => {
+  keyWords: string
+): Promise<[User[], ProfileInterface[]] | null> => {
   let users: User[] = [];
   if (keyWords === "") {
     users = await Userschema.find();
   } else {
-    users = await Userschema.find({   
+    users = await Userschema.find({
       username: { $regex: keyWords, $options: "i" },
     });
   }
@@ -173,26 +175,6 @@ export const editOrder = async (
   status: string,
   trackingnumber: string
 ) => {
-  // const userIdItem = await OrderSchema.findOne({ orderID: orderID }, "userID");
-
-  // const codeItem = await OrderSchema.findOne({ orderID: orderID }, "codeValue");
-
-  // if (!codeItem || !userIdItem) {
-  //   return;
-  // }
-
-  // const { codeValue } = codeItem;
-
-  // if (status === "Cancelled" && codeValue) {
-  //   try {
-  //     await PromoCodeSchema.updateOne(
-  //       { code: codeValue },
-  //       { $pull: { usedUser: userIdItem?.userID } }
-  //     );
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
   await OrderSchema.findOneAndUpdate(
     { orderID: orderID },
     { $set: { orderStatus: status, trackingNumber: trackingnumber } }
@@ -209,12 +191,25 @@ export const findOrderById = async (
   return order;
 };
 
-export async function findProductsWithDetails() {
-  const products = await Productschema.find();
-  const productIDs = products.map((product) => product.productID);
-  // Find corresponding profiles
-  const details = await ProductDetail.find({ productID: { $in: productIDs } });
-  return [products, details];
+export async function findProductsWithDetails(keyWords: string) {
+  try {
+    let products: ProductInterface[] = [];
+    if (keyWords === "") {
+      products = await Productschema.find();
+    } else {
+      const regex = new RegExp(keyWords, "i");
+      products = await Productschema.find({ productName: regex });
+    }
+    // extract order IDS
+    const productIDs = products.map((product) => product.productID);
+    // find corresponding services
+    const details = await ProductDetail.find({
+      productID: { $in: productIDs },
+    });
+    return [products, details];
+  } catch (error) {
+    throw new Error("Failed to retrieve products");
+  }
 }
 
 export async function findProductWithDetail(productID: string) {

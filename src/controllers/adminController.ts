@@ -172,7 +172,12 @@ export async function getOrderById(req: Request, res: Response) {
 
 export async function getProductsWithDetails(req: Request, res: Response) {
   try {
-    const productsWithDetails = await findProductsWithDetails();
+    let { keywords } = req.query;
+    if (!keywords || typeof keywords != "string") {
+      keywords = "";
+    }
+    console.log("keywords" + keywords);
+    const productsWithDetails = await findProductsWithDetails(keywords);
     return res.status(200).send(productsWithDetails);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
