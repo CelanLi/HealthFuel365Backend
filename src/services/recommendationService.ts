@@ -1,17 +1,19 @@
 import { Query,FilterQuery } from "mongoose";
 import ProductSchema, { ProductInterface } from "../models/product";
 import ProductDetailSchema, { ProductDetailInterface } from "../models/productDetail";
+import ItemSimilarityMatrixSchema, { ItemSimilarityMatrixInterface } from "../models/itemSimilarity";
+import RecommendationSchema, { RecommendationInterface, RecommendationList } from "../models/recommendation";
 
 import { getProfile } from "./userService";
-import { getAllOrders } from "./orderService";
+import { findOrderByUser, getAllOrders } from "./orderService";
 import order, { OrderSchema } from "../models/order";
 import user from "../models/user";
+import { findProductByID } from "./productService";
 
 
 // for guest users
-export const findRecommendations = async (
-
-): Promise<ProductInterface[] | null> => {
+export const findRecommendations = async ( ): Promise<ProductInterface[] | null> => {
+  console.log("findRecommendations")
   /* common conditions of recommendations */
   const detail = await ProductDetailSchema.find({
     $or: [
@@ -34,149 +36,48 @@ export const findRecommendations = async (
   }
   /* 1. if user is a guest, return randomized products  */
   // TODO: maybe some popular products should be recommended to customers
+  
   return getRandomizedRecommendations(await ProductSchema.find({
       ...commonConditions,
   }))
 }
 
-// for users already have a profile
-export const findRecommendationsWithCookies = async (
-    _id: string
-  ): Promise<ProductInterface[] | null> => {
-    console.log("user: " + _id );
-    /* common conditions of recommendations */
-    const detail1 = await ProductDetailSchema.find({
-      $or: [
-        { fatLevel: "low" },
-        { sugarLevel: "low" }, 
-        { saltLevel: "low" },
-      ],
-      $nor: [
-        { $and: [ { fatLevel: "high" }, { saltLevel : "high" }, { sugarLevel : "high" }]},
-        { $and: [ { fatLevel: "high" }, { saltLevel : "high" }]},
-        { $and: [ { fatLevel: "high" }, { sugarLevel : "high" }]},
-        { $and: [ { saltLevel: "high" }, { sugarLevel : "high" }]},
-      ]
-    });  
-    const productIds1 = detail1.map((productDetail)=> productDetail.productID);
-    const commonConditions = {
-      nutriScore: { $in: ["A", "B", "C"] },
-      capacity: { $gt: 0 },
-      productID: { $in: productIds1 }
-    }
-    /* 1. if user is a guest, return randomized products  */
-    //TODO: maybe some popular products should be recommended to customers
-    if (!_id) {
-        return getRandomizedRecommendations(await ProductSchema.find({
-            ...commonConditions,
-        }))
-    };
-
-    /* 2. if user has logged in, and has a profile, recommendations should be made according to his preferences */
-    const profile = await getProfile(_id);
-    console.log(profile,"userprofile")
-
-    // Firstly, the requirements in user profile must be fullfilled.
-    const conditions1 = {
-      $nor: [
-        { $and: [ { fatLevel: "high" }, { saltLevel : "high" }, { sugarLevel : "high" }]},
-        { $and: [ { fatLevel: "high" }, { saltLevel : "high" }]},
-        { $and: [ { fatLevel: "high" }, { sugarLevel : "high" }]},
-        { $and: [ { saltLevel: "high" }, { sugarLevel : "high" }]},
-      ]
-    };
-    const conditions2 = [];
-
-    // push conditions dynamically
-    // deal with health goal
-    if (profile?.losingWeightAsGoal) {
-      conditions2.push({ $and: [ { fatLevel: "low" }, { sugarLevel : "low" }]})
-    };
-    // fat/salt/sugar level
-    if (profile?.lowInFat) {
-      conditions2.push({ fatLevel: "low" });
-    }
-
-    if (profile?.lowInSalt) {
-      conditions2.push({ saltLevel: "low" });
-    }
-
-    if (profile?.lowInSugar) {
-      conditions2.push({ sugarLevel: "low" });
-    }
-    // type of eater
-    if (profile?.typeOfEater === "vegan") {
-      conditions2.push({ vegan:true });
-    }
-    if (profile?.typeOfEater === "vegetarian") {
-      conditions2.push({ vegetarian:true });
-    }
-
-    const query: FilterQuery<ProductDetailInterface> = {
-      $and: [conditions1, ...conditions2],
-    };
-    
-    const detail2 = await ProductDetailSchema.find(query);
-    const productIds2 = detail2.map((productDetail)=> productDetail.productID);
-    console.log(productIds2)
-    const profileConditions = {
-      nutriScore: { $in: profile?.nutriPreference },
-      capacity: { $gt: 0 },
-      productID: { $in: productIds2 }
-    }
-
-    /* 3. if the order list is not null, then we would recommand products according to brands, similar products and so on */
-    const records = await getPurchaseRecord();
-    const itemUserMatrix = calculateItemUserMatrix(records);
-    const similarityMatrix = calculateItemSimilarityMatrix(itemUserMatrix);
-
-    // get user purchased products from records
-    const userPurchasedProductsIds = records
-    .filter(record => record.userId === _id)
-    .map(record => record.productId);
-
-    // get recommended products'id list
-    const recommendedIdArray = [];
-    for (const userPurchasedProductsId in userPurchasedProductsIds){
-      recommendedIdArray.push(getTopTwoSimilarProductsIds(userPurchasedProductsId, similarityMatrix))
-    }
-    const flattenedArray = recommendedIdArray.flat();
-    const recommendedIds = [...new Set(flattenedArray)];
-    console.log(recommendedIds)
-
-    // build query conditions according to recommendations
-    const queryConditions = {
-      recommendedIds: { $in: recommendedIds },
-      ...profileConditions
-    };
-
-    const ProfileList = await ProductSchema.find({
-      ...profileConditions,
-    })
-
-    const productList = await ProductSchema.find({
-      ...queryConditions,
-    })
-
-    // if there are more than 12 products, randomly select 12 of them
-    if (productList.length >= 12) {
-      return getRandomizedRecommendations(productList)
-    }
-    // else, get some other products to return 12 products
-    while (productList.length < 12 && ProfileList.length > 0) {
-      const randomIndex = Math.floor(Math.random() * ProfileList.length);
-      const randomProduct = ProfileList.splice(randomIndex, 1)[0]; // remove the random product
-    
-      // check if product already exists
-      const isDuplicate = productList.some(product => product.productID === randomProduct.productID);
-      if (isDuplicate) {
-        continue; // if duplicate, skip this product
+export const findRecommendationsWithCookies = async (_id: string): Promise<ProductInterface[] | null> => {
+  console.log("findRecommendationsWithCookies");
+  const recommendationList = await getRecommendationListById(_id);
+  if (recommendationList) {
+    const productIds = recommendationList.map(item => item.productID);
+    const productList: ProductInterface[] = [];
+    for (const productId of productIds) {
+      const product = await findProductByID(productId);
+      if (product) {
+        productList.push(product);
       }
-
-      productList.push(randomProduct); // add random product to product list
     }
-    return productList;
+    return getRandomizedRecommendations(productList);
+  }
+  return null;
+};
+
+export const getRecommendationListById = async (_id : string): Promise<RecommendationList[] | null | undefined> => {
+  console.log("getRecommendationListById")
+  const recommendation = await RecommendationSchema.findOne({
+    userId : _id,
+  });
+  console.log(recommendation)
+
+  const recommendationList = recommendation?.recommendationList;
+  console.log("111",recommendation?.recommendationList)
+  if (recommendation && recommendationList) {
+    console.log("recommendationList",recommendationList)
+    return recommendationList;
     } 
+  else {
+    console.log("222");
+    await generateRecommendationList(_id);
+    return getRecommendationListById(_id);
+  }
+}
   
   /* randomly return 12 recommendations */
   const getRandomizedRecommendations = (recommendationsList: ProductInterface[]): ProductInterface[] => {
@@ -221,7 +122,7 @@ export const findRecommendationsWithCookies = async (
   };
 
   /* build Item-User Matrix */
-  const calculateItemUserMatrix = (purchaseRecords: PurchaseRecord[]): ItemUserMatrix => {
+  const calculateItemUserMatrix = async (purchaseRecords: PurchaseRecord[]): Promise<ItemUserMatrix> => {
     // initialize the item user matrix with zero
     const productIds = new Set<string>();
     const userIds = new Set<string>();
@@ -257,25 +158,20 @@ export const findRecommendationsWithCookies = async (
     return itemUserMatrix;
   };
 
-  /* define similarity Matrix */
-  interface ItemSimilarity {
-    itemId: string;
-    similarity: number;
-  }
-  
-  interface ItemSimilarityMatrix {
-    [itemId: string]: ItemSimilarity[];
-  };
+  /* create the similarity matrix */
+  export const createItemSimilarityMatrix = async ( ): Promise<void> => {
+    console.log("createItemSimilarityMatrix")
+    await ItemSimilarityMatrixSchema.deleteMany({});
 
-  /* calculate the cosine similarity between items */
-  const calculateItemSimilarityMatrix = (itemUserMatrix: ItemUserMatrix): ItemSimilarityMatrix => {
+    // get purchase records
+    const purchaseRecords = await getPurchaseRecord();
+    // calculate item user matrix
+    const itemUserMatrix = await calculateItemUserMatrix(purchaseRecords);
     const itemIds = Object.keys(itemUserMatrix);
-    const itemSimilarityMatrix: ItemSimilarityMatrix = {};
   
     for (let i = 0; i < itemIds.length; i++) {
       const itemId1 = itemIds[i];
-      itemSimilarityMatrix[itemId1] = [];
-  
+      const matrixColumn = [];
       for (let j = 0; j < itemIds.length; j++) {
         if (i === j) {
           continue; // Skip comparing an item with itself
@@ -283,13 +179,160 @@ export const findRecommendationsWithCookies = async (
   
         const itemId2 = itemIds[j];
         const similarity = calculateCosineSimilarity(itemUserMatrix[itemId1], itemUserMatrix[itemId2]);
-        
-        itemSimilarityMatrix[itemId1].push({ itemId: itemId2, similarity });
+        matrixColumn.push(
+          {
+            productId: itemId2,
+            similarity: similarity,
+          },
+        )
+      }
+      try {
+        await ItemSimilarityMatrixSchema.create({
+          productId: itemId1,
+          matrixColumn: matrixColumn
+        });
+      } catch (error) {
+        throw new Error('Failed to save item similarity matrix to the database.');
       }
     }
-  
-    return itemSimilarityMatrix;
   };
+  /* generate recommendation list for users */
+  export const generateRecommendationList = async (_id: string): Promise<void> => {
+    console.log("generateRecommendationList")
+    /* 0. profile conditions */
+
+    // profile conditions
+    const profile = await getProfile(_id);
+
+    // Firstly, the requirements in user profile must be fullfilled.
+    const conditions1 = {
+      $nor: [
+        { $and: [ { fatLevel: "high" }, { saltLevel : "high" }, { sugarLevel : "high" }]},
+        { $and: [ { fatLevel: "high" }, { saltLevel : "high" }]},
+        { $and: [ { fatLevel: "high" }, { sugarLevel : "high" }]},
+        { $and: [ { saltLevel: "high" }, { sugarLevel : "high" }]},
+      ]
+    };
+    const conditions2 = [];
+
+    // push conditions dynamically
+    // deal with health goal
+    if (profile?.losingWeightAsGoal) {
+      conditions2.push({ $and: [ { fatLevel: "low" }, { sugarLevel : "low" }]})
+    };
+    // fat/salt/sugar level
+    if (profile?.lowInFat) {
+      conditions2.push({ fatLevel: "low" });
+    }
+
+    if (profile?.lowInSalt) {
+      conditions2.push({ saltLevel: "low" });
+    }
+
+    if (profile?.lowInSugar) {
+      conditions2.push({ sugarLevel: "low" });
+    }
+    // type of eater
+    if (profile?.typeOfEater === "vegan") {
+      conditions2.push({ vegan:true });
+    }
+    if (profile?.typeOfEater === "vegetarian") {
+      conditions2.push({ vegetarian:true });
+    }
+
+    const query: FilterQuery<ProductDetailInterface> = {
+      $and: [conditions1, ...conditions2],
+    };
+    
+    const detail2 = await ProductDetailSchema.find(query);
+    const productIds2 = detail2.map((productDetail)=> productDetail.productID);
+    const profileConditions = {
+      nutriScore: { $in: profile?.nutriPreference },
+      capacity: { $gt: 0 },
+      productID: { $in: productIds2 }
+    }
+
+    /* 1. get all products bought by a user */
+    const allProductList = await getAllProductsByUserId(_id)
+
+    /* 2. search the similarity matrix, get four of the most similar products of items */
+    const recommendedIdArray = [];
+    for (const productId in allProductList){
+      recommendedIdArray.push(await getSimilarProducts(productId))
+    }
+
+    const flattenedArray = recommendedIdArray.flat();
+    const recommendedIds = [...new Set(flattenedArray)];
+    console.log("recommendedIds",recommendedIds)
+
+    const queryConditions = {
+      $and: [
+        { productID: { $in: recommendedIds } },
+        profileConditions
+      ]
+    };
+    const ProfileList = await ProductSchema.find({
+      ...profileConditions,
+    })
+    const productList = await ProductSchema.find({
+      ...queryConditions,
+    })
+
+    /* 3. generate a list and store it into database */
+    const recommendationList = productList.map(item => ({ productID: item.productID }));
+
+    // if the recommendation list is not long enough, add some profile products
+    while (recommendationList.length < 20 && ProfileList.length > 0) {
+      const randomIndex = Math.floor(Math.random() * ProfileList.length);
+      const randomProduct = ProfileList.splice(randomIndex, 1)[0]; // remove the random product
+    
+      // check if product already exists
+      const isDuplicate = recommendationList.some(product => product.productID === randomProduct.productID);
+      if (isDuplicate) {
+        continue; // if duplicate, skip this product
+      }
+
+      recommendationList.push(randomProduct); // add random product to product list
+    }
+    
+    try {
+      await RecommendationSchema.findOneAndUpdate(
+        { userId: _id }, // query condition
+        { userId: _id, recommendationList: recommendationList }, // data to be updated or deleted
+        { upsert: true } // if dont exists, create a new one
+      );
+      
+    } catch (error) {
+      throw new Error('Failed to save item similarity matrix to the database.');
+    }
+
+  }
+
+  const getSimilarProducts = async (itemId : string) => {
+    const item = await ItemSimilarityMatrixSchema.findOne({
+      productId : itemId,
+    });
+    const similarProducts = item ? item.matrixColumn || [] : [];
+    const sortedProducts = similarProducts.sort((a, b) => b.similarity - a.similarity);
+    const topFourProducts = sortedProducts.slice(0, 20);
+    const topFourProductsIds = topFourProducts.map(product => product.productId);
+    return topFourProductsIds;
+  }
+
+  const getAllProductsByUserId =async (userID:string) => {
+    const orderList = await findOrderByUser(userID);
+    const productList = [];
+    if (orderList) {
+      for (let i = 0; i < orderList.length; i++) {
+        const order = orderList[i];
+        for (let j = 0; j < order.orderProducts.length; j++) {
+          const productId = order.orderProducts[j].product.productID;
+          productList.push(productId);
+        }
+      }
+    }
+    return(productList);
+  }
 
   /* calculate cosine similarity of vectors */
   function calculateCosineSimilarity(
@@ -326,12 +369,3 @@ export const findRecommendationsWithCookies = async (
     magnitude = Math.sqrt(magnitude);
     return magnitude;
   }
-
-  /* sort products by similarity, and get the top two products with highest similarity */
-  const getTopTwoSimilarProductsIds = (itemId : string, similarityMatrix : ItemSimilarityMatrix) => {
-    const similarProducts = similarityMatrix[itemId] || [];
-    const sortedProducts = similarProducts.sort((a, b) => b.similarity - a.similarity);
-    const topTwoProducts = sortedProducts.slice(0, 2);
-    const topTwoProductsIds = topTwoProducts.map(product => product.itemId);
-    return topTwoProductsIds;
-  };
