@@ -18,6 +18,7 @@ mongoose.connect(Constants.mongoURI).catch((err) => {
   );
 });
 const app = express();
+const bodyParser = require('body-parser');
 
 // allow Cross-origin resource sharing
 app.use(cors({
@@ -29,7 +30,9 @@ app.use(cors({
 
 // allow requests from different domains
 app.use(allowCrossDomain);
-app.use(express.json());
+// app.use(express.json());
+// the max size of request is limited in 1mb
+app.use(express.json({limit : "1mb"}));
 app.use("/product", productRoutes);
 app.use("/product/detail", productDetailRoutes);
 app.use("/shoppingcart", shoppingCartRoutes);

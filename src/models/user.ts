@@ -5,6 +5,7 @@ export interface User extends mongoose.Document {
   password: string;
   userID: string;
   email: string;
+  avatar?: string;
 }
 
 export const UserSchema = new mongoose.Schema({
@@ -20,6 +21,9 @@ export const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+  },
+  avatar: {
+    type: String,
   },
 });
 

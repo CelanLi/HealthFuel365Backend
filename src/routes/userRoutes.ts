@@ -10,6 +10,7 @@ const userRoutes = express.Router();
 userRoutes.post("/register", UserController.register);
 userRoutes.post("/login", UserController.login);
 userRoutes.get("/getuser", checkAuthentication, UserController.getUser);
+userRoutes.put("/AvatarEdit",checkAuthentication,UserController.avatarEdit)
 
 userRoutes.put("/profileedit",checkAuthentication, UserController.profileEdit);
 userRoutes.get("/profileget",checkAuthentication, UserController.profileGet);

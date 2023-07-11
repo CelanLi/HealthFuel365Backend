@@ -19,7 +19,9 @@ import promocode from "../models/promocode";
 import { generateRecommendationList } from "../services/recommendationService";
 
 export async function register(req: Request, res: Response) {
+  console.log("11111")
   const newUser = new Userschema(req.body);
+  console.log(newUser)
 
   if (!newUser) {
     return res.status(400).json({
@@ -224,12 +226,64 @@ export async function getUser(req: Request, res: Response) {
       const requestedUser = {
         username: user.username,
         id: user._id,
+        avatar: user.avatar ? user.avatar : null
       };
       return res.status(200).json(requestedUser);
     })
     .catch((error) => res.status(500).json(internalServerErrorMessage));
   } catch (error) {
     
+  }
+}
+
+export async function avatarEdit(req: Request, res: Response) {
+  console.log("avatarEdit")
+  const avatar = req.body.avatar;
+  try {
+    //@ts-ignore
+    const userID = req.userId; //current user's id
+    console.log("userId",userID)
+    const existingUser = await Userschema.findOne({
+      _id: userID,
+    });
+    console.log("existingUser" ,existingUser)
+
+    if (!userID || !existingUser) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "User doesn't exist!",
+      });
+    }
+
+    const userResponse = Userschema.findOneAndUpdate(
+      { _id: existingUser._id },
+      { $set: { avatar: avatar } },
+      { new: true }
+    );
+    userResponse
+      .then((updatedAvatar) => {
+        // If updated, then save
+        if(updatedAvatar){
+          updatedAvatar.save()
+          .then((savedAvatar) => {
+            console.log('Avatar saved:', savedAvatar);
+          })
+          .catch((error) => {
+            console.error('Error saving profile:', error);
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error updating profile:', error);
+      });
+
+    await existingUser.save(); // save the updated user
+    return res.status(200).json({
+      message: "Avatar updated successfully",
+    });
+  } catch (error) {
+    // console.log(error)
+    return res.status(500).json(internalServerErrorMessage);
   }
 }
 
