@@ -7,6 +7,7 @@ import AddressSchema from "../models/address";
 import OrderSchema, { OrderInterface } from "../models/order";
 import PaymentSchema, {PaymentInterface} from "../models/payment";
 import { calculateSummary } from "./shoppingCartService";
+import { createItemSimilarityMatrix, generateRecommendationList } from "./recommendationService"
 import BigNumber from "bignumber.js";
 import payment from "../models/payment";
 
@@ -121,6 +122,8 @@ export const addOrder = async (
         await OrderSchema.create(order);
         await PackageAndShippingServiceSchema.create(service);
         await PaymentSchema.create(payment);
+        createItemSimilarityMatrix();
+        generateRecommendationList(shoppingCartID);
       } catch (err) {
         console.log(err);
       }

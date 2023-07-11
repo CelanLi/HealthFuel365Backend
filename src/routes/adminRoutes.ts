@@ -1,24 +1,64 @@
 import express from "express";
 import * as AdminController from "../controllers/adminController";
+import { checkAdminAuthentication } from "../middleware/middleware";
 
 /**
  * router refers to http://localhost:8081/admin/...route
  */
 const adminRoutes = express.Router();
 
-adminRoutes.get("/user", AdminController.getAllUsersWithProfiles);
-adminRoutes.delete("/:userID", AdminController.deleteUserWithProfile);
-adminRoutes.put("/update/:userID/:email", AdminController.updateUserEmail);
+adminRoutes.post("/login", AdminController.login);
 
-adminRoutes.get("/getAllPromoCode", AdminController.getAllPromoCode);
-adminRoutes.post("/deletePromoCode", AdminController.deletePromoCode);
-adminRoutes.post("/updatePromoCode", AdminController.updatePromoCode);
-adminRoutes.post("/addPromoCode", AdminController.addPromoCode);
+adminRoutes.get(
+  "/user",
+  checkAdminAuthentication,
+  AdminController.getAllUsersWithProfiles
+);
+adminRoutes.delete(
+  "/:userID",
+  checkAdminAuthentication,
+  AdminController.deleteUserWithProfile
+);
+adminRoutes.put(
+  "/update/:userID/:email",
+  checkAdminAuthentication,
+  AdminController.updateUserEmail
+);
 
-adminRoutes.get("/orders", AdminController.getAllOrdersWithService);
-adminRoutes.get("/getOrder/:orderID", AdminController.getOrderById);
+adminRoutes.get(
+  "/getAllPromoCode",
+  checkAdminAuthentication,
+  AdminController.getAllPromoCode
+);
+adminRoutes.post(
+  "/deletePromoCode",
+  checkAdminAuthentication,
+  AdminController.deletePromoCode
+);
+adminRoutes.post(
+  "/updatePromoCode",
+  checkAdminAuthentication,
+  AdminController.updatePromoCode
+);
+adminRoutes.post(
+  "/addPromoCode",
+  checkAdminAuthentication,
+  AdminController.addPromoCode
+);
+
+adminRoutes.get(
+  "/orders",
+  checkAdminAuthentication,
+  AdminController.getAllOrdersWithService
+);
+adminRoutes.get(
+  "/getOrder/:orderID",
+  checkAdminAuthentication,
+  AdminController.getOrderById
+);
 adminRoutes.put(
   "/orders/update/:orderID/:status/:trackingnumber",
+  checkAdminAuthentication,
   AdminController.updateOrder
 );
 

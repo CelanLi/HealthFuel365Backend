@@ -16,6 +16,7 @@ import user from "../models/user";
 import { ConnectionClosedEvent, MongoUnexpectedServerResponseError } from "mongodb";
 import order, { OrderSchema } from "../models/order";
 import promocode from "../models/promocode";
+import { generateRecommendationList } from "../services/recommendationService";
 
 export async function register(req: Request, res: Response) {
   const newUser = new Userschema(req.body);
@@ -281,8 +282,9 @@ export async function profileEdit(req: Request, res: Response) {
       .catch((error) => {
         console.error('Error updating profile:', error);
       });
-    // profileResponse.save();
-    console.log("dafa",profileResponse)
+
+      //update recommendation list
+      generateRecommendationList(userID)
     return res.status(200).json({
       message: "Profile updated successfully",
     });
