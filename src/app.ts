@@ -32,7 +32,7 @@ app.use(cors({
 app.use(allowCrossDomain);
 // app.use(express.json());
 // the max size of request is limited in 1mb
-app.use(express.json({limit : "1mb"}));
+app.use(express.json({limit : "10mb"}));
 app.use("/product", productRoutes);
 app.use("/product/detail", productDetailRoutes);
 app.use("/shoppingcart", shoppingCartRoutes);
