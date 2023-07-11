@@ -62,16 +62,24 @@ adminRoutes.put(
   AdminController.updateOrder
 );
 
-adminRoutes.get("/products", AdminController.getProductsWithDetails);
+adminRoutes.get("/products", 
+  checkAdminAuthentication,
+  AdminController.getProductsWithDetails);
 adminRoutes.get(
   "/products/edit/:productID",
+  checkAdminAuthentication,
   AdminController.getProductWithDetail
 );
 adminRoutes.delete(
   "/products/delete/:productID",
+  checkAdminAuthentication,
   AdminController.deleteProduct
 );
-adminRoutes.post("/products/add", AdminController.addProduct);
-adminRoutes.post("/products/update/:productID", AdminController.updateProduct);
+adminRoutes.post("/products/add",
+  checkAdminAuthentication,
+  AdminController.addProduct);
+adminRoutes.post("/products/update/:productID",
+  checkAdminAuthentication,
+  AdminController.updateProduct);
 
 export default adminRoutes;
