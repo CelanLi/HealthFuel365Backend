@@ -69,7 +69,16 @@ export const validatePromoCode = async (
       const res = await PromoCodeSchema.findOne({ code });
 
       // 1.if promo code exist  2.expiration time  3.user already used
-      if (!res) {
+      const itemQuantityObject = await ShoppingCartSchema.findOne(
+        { shoppingCartID },
+        "itemQuantity"
+      ); 
+
+      if (itemQuantityObject && Number(itemQuantityObject.itemQuantity)===0){
+        reject("Sorry, your shopping cart is empty.");
+        return;
+      }
+      else if (!res) {
         reject("No corresponding promo code found");
         return;
       } else if (+new Date(res.expirationDate) < +new Date()) {
