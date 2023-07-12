@@ -31,7 +31,7 @@ export const findAlternative = async (
       ...commonConditions,
       category: "snacks",
       $or: [ { productName: { $regex: "chip", $options: "i" } }, // including "chip" and case-insensitive e.g., fruit chips
-             { productName: { $regex: "mais", $options: "i"  } } // including "mais" and case-insensitice e.g., some snacks made from mais
+             { productName: { $regex: "mais|rice", $options: "i"  } } // including "mais" or "rice" and case-insensitice e.g., some snacks made from mais
            ]
     }));
   } 
@@ -71,7 +71,7 @@ export const findAlternative = async (
     return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
       category: "snacks",
-      productName: { $regex: "cookies|biscuits", $options: "i" } 
+      productName: { $regex: "cookies|biscuits|knusperbrot|flapjack", $options: "i" } 
     }));
   } 
   /* 6. junk food type : salami*/

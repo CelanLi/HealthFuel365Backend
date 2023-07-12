@@ -21,7 +21,7 @@ import { generateRecommendationList } from "../services/recommendationService";
 export async function register(req: Request, res: Response) {
   console.log("11111")
   const newUser = new Userschema(req.body);
-  console.log(newUser)
+  console.log(newUser);
 
   if (!newUser) {
     return res.status(400).json({
@@ -45,6 +45,16 @@ export async function register(req: Request, res: Response) {
         message: "Username already exists",
       });
     }
+
+    //check email format
+    const emailFormat = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+    if (!emailFormat.test(newUser.email)) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid email format.",
+      });
+    }
+
     //password hashing
     const salt = bcrypt.genSaltSync(10); //rather than directly store the password in the database, salt value is used to encrypt the password
     const hashedPassword = bcrypt.hashSync(newUser.password, salt);
