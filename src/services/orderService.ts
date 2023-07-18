@@ -1,13 +1,18 @@
 import ShoppingCartSchema from "../models/shoppingcart";
 import productItemSchema from "../models/productItem";
 import ProductSchema from "../models/product";
-import PromoCodeSchema, {Promocode} from "../models/promocode";
-import PackageAndShippingServiceSchema, {PackageAndShippingServiceInterface} from "../models/packageAndShippingService";
+import PromoCodeSchema, { Promocode } from "../models/promocode";
+import PackageAndShippingServiceSchema, {
+  PackageAndShippingServiceInterface,
+} from "../models/packageAndShippingService";
 import AddressSchema from "../models/address";
 import OrderSchema, { OrderInterface } from "../models/order";
-import PaymentSchema, {PaymentInterface} from "../models/payment";
+import PaymentSchema, { PaymentInterface } from "../models/payment";
 import { calculateSummary } from "./shoppingCartService";
-import { createItemSimilarityMatrix, generateRecommendationList } from "./recommendationService"
+import {
+  createItemSimilarityMatrix,
+  generateRecommendationList,
+} from "./recommendationService";
 import BigNumber from "bignumber.js";
 import payment from "../models/payment";
 
@@ -25,7 +30,7 @@ export const addOrder = async (
         reject("Please add an shipping address");
         return;
       }
- 
+
       // Else: 1. capacity management
       const productItems = await productItemSchema.find({
         shoppingCartID: shoppingCartID,
@@ -47,7 +52,7 @@ export const addOrder = async (
           await productDoc.save();
         }
       }
- 
+
       const shoppingCart = await ShoppingCartSchema.findOne({ shoppingCartID });
 
       if (!shoppingCart) {
@@ -62,9 +67,18 @@ export const addOrder = async (
         // userID=shoppingCartID
         promoCode.usedUser.push(shoppingCartID);
         await promoCode.save();
-      } 
+      }
       // Else: 3. clear shopping cart
       await productItemSchema.deleteMany({ shoppingCartID });
+      // 3.1 clear shopping cart promo code
+      await ShoppingCartSchema.findOneAndUpdate(
+        { shoppingCartID: shoppingCartID },
+        {
+          $set: {
+            codeValue: "",
+          },
+        }
+      );
       await calculateSummary(shoppingCartID);
 
       // Else: 4. create Order
@@ -81,8 +95,10 @@ export const addOrder = async (
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
       const date = currentDate.getDate();
-      const localDateString = currentDate.toLocaleString('de-DE', { timeZone: 'Europe/Berlin' });
-      const newOrder = new OrderSchema(); 
+      const localDateString = currentDate.toLocaleString("de-DE", {
+        timeZone: "Europe/Berlin",
+      });
+      const newOrder = new OrderSchema();
       const order = {
         orderID: newOrder._id,
         userID: shoppingCartID,
@@ -111,7 +127,6 @@ export const addOrder = async (
         sendAsAGift: orService,
       };
 
-      
       const payment = {
         orderID: newOrder._id,
         paymentID: paymentID,
@@ -147,13 +162,33 @@ export const cancelPayPal = async (paymentID: string) => {
     return "error";
   });
 
-  await PaymentSchema
-  .deleteMany({
-    paymentID: paymentID, 
-  })
-  .catch(() => {
+  await PaymentSchema.deleteMany({
+    paymentID: paymentID,
+  }).catch(() => {
     return "error";
   });
+
+  // capacity management
+  const orderItem = await OrderSchema.findOne({
+    orderID: orderID,
+  });
+
+  if (!orderItem) {
+    return;
+  }
+  
+  const { orderProducts } = orderItem;
+
+  for (const orderProduct of orderProducts) {
+    const { product, quantity } = orderProduct;
+    const { productID } = product;
+    const productDoc = await ProductSchema.findOne({ productID });
+
+    if (productDoc && productDoc.capacity) {
+      productDoc.capacity += quantity;
+      await productDoc.save();
+    }
+  }
 };
 
 export const successPayPal = async (paymentID: string) => {

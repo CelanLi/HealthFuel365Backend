@@ -96,7 +96,7 @@ export const OrderSchema = new mongoose.Schema({
     type: {
       user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User, // 引用 User 模型
+        ref: User, // use user model
       },
       street: {
         type: String,

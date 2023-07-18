@@ -21,7 +21,7 @@ import { generateRecommendationList } from "../services/recommendationService";
 export async function register(req: Request, res: Response) {
   console.log("11111")
   const newUser = new Userschema(req.body);
-  console.log(newUser)
+  console.log(newUser);
 
   if (!newUser) {
     return res.status(400).json({
@@ -45,6 +45,16 @@ export async function register(req: Request, res: Response) {
         message: "Username already exists",
       });
     }
+
+    //check email format
+    const emailFormat = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+    if (!emailFormat.test(newUser.email)) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid email format.",
+      });
+    }
+
     //password hashing
     const salt = bcrypt.genSaltSync(10); //rather than directly store the password in the database, salt value is used to encrypt the password
     const hashedPassword = bcrypt.hashSync(newUser.password, salt);
@@ -153,16 +163,7 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   const { username, password } = req.body;
-  // console.log(username, password)
-  // try {
-  //   const result = await loginUser(username, password);
-  //   // 处理成功登录的情况
-  //   console.log("登录成功", result);
-  // } catch (error) {
-  //   // 处理登录失败的情况
-  //   console.log("登录失败", error);
-  // }
-  //check for correct params
+
   console.log("body",req.body)
   if (!username || !password) {
     return res.status(400).json({
@@ -571,7 +572,6 @@ export async function getOrder(req: Request, res: Response) {
     }
 
     const order = await findOrderByUser(userID);
-    console.log("orderlist",order)
     return res.status(200).send(order);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
