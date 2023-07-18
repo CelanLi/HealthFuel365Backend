@@ -79,7 +79,7 @@ export const findAlternative = async (
     return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
       category: { $in: ["snacks","staple"] },
-      productName: { $regex: "w[uü]rst", $options: "i" } 
+      productName: { $regex: "w[uü]rst|tofu", $options: "i" } 
      }));
   };
   } 
