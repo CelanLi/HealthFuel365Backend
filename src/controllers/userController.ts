@@ -163,16 +163,7 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   const { username, password } = req.body;
-  // console.log(username, password)
-  // try {
-  //   const result = await loginUser(username, password);
-  //   // 处理成功登录的情况
-  //   console.log("登录成功", result);
-  // } catch (error) {
-  //   // 处理登录失败的情况
-  //   console.log("登录失败", error);
-  // }
-  //check for correct params
+
   console.log("body",req.body)
   if (!username || !password) {
     return res.status(400).json({

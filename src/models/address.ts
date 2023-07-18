@@ -14,7 +14,7 @@ export interface AddressInterface extends mongoose.Document{
 export const AddressSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User, // 引用 User 模型
+        ref: User, // use user model
     },
     street: {
         type: String,
