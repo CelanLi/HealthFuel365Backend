@@ -3,6 +3,7 @@ import productItemSchema, { ProductItem } from "../models/productItem";
 import PromoCodeSchema from "../models/promocode";
 import BigNumber from "bignumber.js";
 
+// get shoppingCart Info and productItems
 export const getShoppingCart = async (id: string) => {
   const shoppingCartItems = await ShoppingCartSchema.findOne({
     shoppingCartID: id,
@@ -72,13 +73,12 @@ export const validatePromoCode = async (
       const itemQuantityObject = await ShoppingCartSchema.findOne(
         { shoppingCartID },
         "itemQuantity"
-      ); 
+      );
 
-      if (itemQuantityObject && Number(itemQuantityObject.itemQuantity)===0){
+      if (itemQuantityObject && Number(itemQuantityObject.itemQuantity) === 0) {
         reject("Sorry, your shopping cart is empty.");
         return;
-      }
-      else if (!res) {
+      } else if (!res) {
         reject("No corresponding promo code found");
         return;
       } else if (+new Date(res.expirationDate) < +new Date()) {
@@ -137,10 +137,12 @@ export const removePromoCode = async (
 
 // summary calculate
 export const calculateSummary = async (shoppingCartID: string) => {
+  //1. calculate itemQuantity
   const itemQuantity = await productItemSchema.countDocuments({
     shoppingCartID: shoppingCartID,
   });
 
+  //2. itemPrice= sum(productPrice * quantity)
   const productPrice = await productItemSchema.aggregate([
     {
       $match: { shoppingCartID: shoppingCartID },
@@ -162,7 +164,7 @@ export const calculateSummary = async (shoppingCartID: string) => {
     itemPrice = productPrice[0].totalPrice;
   }
 
-  //if itemPrice not over min threshold of the promo code
+  //if itemPrice not over min threshold of the promo code --> remove promo code
   const codeCheck = await ShoppingCartSchema.findOne(
     { shoppingCartID },
     "codeValue"
@@ -184,6 +186,7 @@ export const calculateSummary = async (shoppingCartID: string) => {
     }
   }
 
+  //3. caculate totalSaving based on promo code
   const codeObject = await ShoppingCartSchema.findOne(
     { shoppingCartID },
     "codeValue"
@@ -209,6 +212,7 @@ export const calculateSummary = async (shoppingCartID: string) => {
     }
   }
 
+  // 4. subTotal=itemPrice-totalSaving
   const subTotal = new BigNumber(itemPrice)
     .minus(new BigNumber(totalSaving))
     .toString();
