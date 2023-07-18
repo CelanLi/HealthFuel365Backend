@@ -21,13 +21,11 @@ import ProductDetail from "../models/productDetail";
 import jwt from "jsonwebtoken";
 
 export async function login(req: Request, res: Response) {
-  console.log("admin");
   const { adminID, password } = req.body;
-  console.log("body",req.body)
   if (!adminID || !password) {
     return res.status(400).json({
       error: "Bad Request",
-      message: "Missing param: " + (adminID? "password" : "adminID"),
+      message: "Missing param: " + (adminID ? "password" : "adminID"),
     });
   }
   try {
@@ -40,7 +38,7 @@ export async function login(req: Request, res: Response) {
       });
     }
     //check correct password
-    if (password!==admin.password) {
+    if (password !== admin.password) {
       return res.status(401).json({
         error: "Unauthorized",
         message: "Wrong password",
@@ -55,7 +53,6 @@ export async function login(req: Request, res: Response) {
         expiresIn: expirationTime, // expires in 24 hours
       }
     );
-    console.log(token)
     return res.status(200).json({
       token: token,
       expiresIn: expirationTime,
@@ -174,7 +171,6 @@ export async function getAllOrdersWithService(req: Request, res: Response) {
   if (!keyWords || typeof keyWords != "string") {
     keyWords = "";
   }
-  console.log("keywords" + keyWords);
   try {
     const orders_service = await findAllOrdersWithService(keyWords);
     return res.status(200).send(orders_service);
@@ -200,9 +196,7 @@ export async function updateOrder(req: Request, res: Response) {
 
 export async function getOrderById(req: Request, res: Response) {
   try {
-    console.log("controller id");
     const orderID = req.params.orderID;
-    console.log(orderID);
     const order = await findOrderById(orderID);
     if (!order) {
       return res.status(404).json({
@@ -232,6 +226,7 @@ export async function getProductsWithDetails(req: Request, res: Response) {
 
 export async function getProductWithDetail(req: Request, res: Response) {
   try {
+    console.log("in getProductWithDetail");
     const { productID } = req.params;
     const productWithDetail = await findProductWithDetail(productID);
     return res.status(200).send(productWithDetail);
@@ -285,9 +280,7 @@ export async function addProduct(req: Request, res: Response) {
       saltLevel: req.body.saltLevel,
       productDescription: req.body.productDescription,
     });
-    console.log(JSON.stringify(detail));
     const created_detail = await detail.save();
-    console.log(JSON.stringify(created_detail) + "ddddddddd");
     return res.status(200).json({
       message: "Product added successfully",
     });
@@ -297,7 +290,6 @@ export async function addProduct(req: Request, res: Response) {
 }
 
 export async function updateProduct(req: Request, res: Response) {
-  console.log("in updateProduct");
   const product = new Productschema({
     productID: req.body.productID,
     category: req.body.category,
@@ -334,8 +326,6 @@ export async function updateProduct(req: Request, res: Response) {
         productName: req.body.productName,
       }
     );
-    // const created_detail = await detail.save();
-    console.log(JSON.stringify(req.body.productDescription));
     const created_detail = await ProductDetail.findOneAndUpdate(
       { productID: req.body.productID },
       {
