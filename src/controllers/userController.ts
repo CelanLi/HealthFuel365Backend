@@ -581,7 +581,6 @@ export async function getOrder(req: Request, res: Response) {
     }
 
     const order = await findOrderByUser(userID);
-    console.log("orderlist",order)
     return res.status(200).send(order);
   } catch (error) {
     return res.status(500).json(internalServerErrorMessage);

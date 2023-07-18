@@ -167,6 +167,28 @@ export const cancelPayPal = async (paymentID: string) => {
   }).catch(() => {
     return "error";
   });
+
+  // capacity management
+  const orderItem = await OrderSchema.findOne({
+    orderID: orderID,
+  });
+
+  if (!orderItem) {
+    return;
+  }
+  
+  const { orderProducts } = orderItem;
+
+  for (const orderProduct of orderProducts) {
+    const { product, quantity } = orderProduct;
+    const { productID } = product;
+    const productDoc = await ProductSchema.findOne({ productID });
+
+    if (productDoc && productDoc.capacity) {
+      productDoc.capacity += quantity;
+      await productDoc.save();
+    }
+  }
 };
 
 export const successPayPal = async (paymentID: string) => {
