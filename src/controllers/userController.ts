@@ -9,7 +9,7 @@ import ProfileSchema from "../models/profile";
 import AddressSchema from "../models/address";
 import ShoppingCartSchema from "../models/shoppingcart";
 
-import { loginUser,findAddressByUser } from "../services/userService";
+import { findAddressByUser } from "../services/userService";
 import { findOrderByUser, findOrderById, findServicesByOrderId, findPaymentByOrderId, findPromododeByCode } from "../services/orderService";
 
 import user from "../models/user";
@@ -19,10 +19,9 @@ import promocode from "../models/promocode";
 import { generateRecommendationList } from "../services/recommendationService";
 
 export async function register(req: Request, res: Response) {
-  console.log("11111")
   const newUser = new Userschema(req.body);
-  console.log(newUser);
 
+  // if the user object in the request body is null, return bad request
   if (!newUser) {
     return res.status(400).json({
       error: "Bad Request",
@@ -34,8 +33,9 @@ export async function register(req: Request, res: Response) {
       message: "Invalid password",
     });
   }
+
   try {
-    //search for user with given username
+    // search for user with given username, if there is already an account with the same username, return bad request.
     const existingUser = await Userschema.findOne({
       username: newUser.username,
     });
@@ -66,10 +66,7 @@ export async function register(req: Request, res: Response) {
     // create a default profile
     ProfileSchema.create({
       userID: user._id,
-      // name: undefined,
-      // goal: undefined,
       typeOfEater: "Omnivore",
-      // dietaryPreferences: undefined,
       losingWeightAsGoal: false,
       keepGoodDietAsGoal:false,
       lowInFat: false,
@@ -78,16 +75,7 @@ export async function register(req: Request, res: Response) {
       nutriPreference: ['A','B','C','D','E']
     });
 
-    // create an empty shoppingcart, where shopping cart id is the same with user id
-    // ShoppingCartSchema.create({
-    //     shoppingCartID: user._id,
-    //     itemPrice: 0,
-    //     totalSaving: 0,
-    //     subTotal: 0,
-    //     itemQuantity: 0,
-    //     codeValue: ""
-    // });
-
+    // create a shopping cart
   const shoppingCartTest = new ShoppingCartSchema({
     shoppingCartID: user._id,
     itemPrice: 0,
@@ -124,21 +112,7 @@ export async function register(req: Request, res: Response) {
   });
   console.log("end")
 
-
-    // const token = jwt.sign(
-    //   { id: user._id, username: user.username },
-    //   JwtSecret,
-    //   {
-    //     expiresIn: 86400, // expires in 24 hours
-    //   }
-    // );
-
-    // console.log(token)
-
-    // return res
-    //   .status(200)
-    //   .json({ token: token, message: "User was created successfully" });
-
+  // give a token to user
     const expirationTime = 86400; // expires in 24 hours
     // create a token
     const token = jwt.sign(
@@ -149,8 +123,7 @@ export async function register(req: Request, res: Response) {
       }
     );
 
-    console.log(token)
-
+    // return token and expiration time
     return res.status(200).json({
       token: token,
       expiresIn: expirationTime,
@@ -164,7 +137,7 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   const { username, password } = req.body;
 
-  console.log("body",req.body)
+  // if username or password is null, return bad request
   if (!username || !password) {
     return res.status(400).json({
       error: "Bad Request",
@@ -172,7 +145,7 @@ export async function login(req: Request, res: Response) {
     });
   }
   try {
-    //find user
+    // find user account
     const user = await Userschema.findOne({ username });
     if (!user) {
       return res.status(404).json({
@@ -180,7 +153,7 @@ export async function login(req: Request, res: Response) {
         message: "User not found",
       });
     }
-    //check correct password
+    // check password
     const correctPassword = compareSync(password, user.password);
     if (!correctPassword) {
       return res.status(401).json({
@@ -188,6 +161,8 @@ export async function login(req: Request, res: Response) {
         message: "Wrong password",
       });
     }
+
+    // give user a token
     const expirationTime = 86400; // expires in 24 hours
     // create a token
     const token = jwt.sign(
@@ -210,10 +185,11 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function getUser(req: Request, res: Response) {
-  console.log("getuser!")
   try {
     //@ts-ignore
     const userID = req.userId;
+
+    // find user by user id
     Userschema.findById(userID)
     .exec()
     .then((user) => {
@@ -238,17 +214,18 @@ export async function getUser(req: Request, res: Response) {
 }
 
 export async function avatarEdit(req: Request, res: Response) {
-  console.log("avatarEdit")
   const avatar = req.body.avatar;
   try {
     //@ts-ignore
     const userID = req.userId; //current user's id
     console.log("userId",userID)
+
+    // find the user account by id
     const existingUser = await Userschema.findOne({
       _id: userID,
     });
-    console.log("existingUser" ,existingUser)
 
+    // if no user account, return bad request
     if (!userID || !existingUser) {
       return res.status(400).json({
         error: "Bad Request",
@@ -256,11 +233,13 @@ export async function avatarEdit(req: Request, res: Response) {
       });
     }
 
+    // find user account and update
     const userResponse = Userschema.findOneAndUpdate(
       { _id: existingUser._id },
       { $set: { avatar: avatar } },
       { new: true }
     );
+
     userResponse
       .then((updatedAvatar) => {
         // If updated, then save
@@ -294,12 +273,10 @@ export async function profileEdit(req: Request, res: Response) {
   try {
     //@ts-ignore
     const userID = req.userId; //current user's id
-    // const userID = "64872a4ed2c673dd7bba2b39";
-    console.log("afdlka",userID)
+
     const existingUser = await Userschema.findOne({
       _id: userID,
     });
-    console.log("aaa",existingUser)
 
     if (!userID || !existingUser) {
       return res.status(400).json({
@@ -308,11 +285,12 @@ export async function profileEdit(req: Request, res: Response) {
       });
     }
 
+    // get profile by user id
     const profileToBeEdit = await ProfileSchema.findOne({
       userID: userID,
     });
-    console.log("dafjlaj",profileToBeEdit)
 
+    // if no profile, return 404
     if (!profileToBeEdit) {
       return res.status(404).json({
         error: "Not Found",
@@ -338,8 +316,9 @@ export async function profileEdit(req: Request, res: Response) {
         console.error('Error updating profile:', error);
       });
 
-      //update recommendation list
+      //update recommendation list after the profile update
       generateRecommendationList(userID)
+
     return res.status(200).json({
       message: "Profile updated successfully",
     });
@@ -366,7 +345,6 @@ export async function profileGet(req: Request, res: Response) {
     const profileGet = await ProfileSchema.findOne({
       userID: userID,
     });
-    console.log("dafjlaj",profileGet)
 
     if (!profileGet) {
       return res.status(404).json({
@@ -383,18 +361,17 @@ export async function profileGet(req: Request, res: Response) {
 
 export async function addressAdd(req: Request, res: Response) {
   const newAddress = new AddressSchema(req.body)
-  console.log("addressAdd",newAddress)
 
   try {
     //@ts-ignore
     const userID = req.userId; //current user's id
-    // const userID = "64872a4ed2c673dd7bba2b39";
-    console.log("afdlka",userID)
+
+    // get user
     const existingUser = await Userschema.findOne({
       _id: userID,
     });
-    console.log("aaa",existingUser)
 
+    // if no user exists, return bad request
     if (!userID || !existingUser) {
       return res.status(400).json({
         error: "Bad Request",
@@ -405,7 +382,6 @@ export async function addressAdd(req: Request, res: Response) {
     newAddress.user = userID;
 
     let address = await newAddress.save();
-    console.log("dafa",address)
 
     return res.status(200).json({
       message: "Address added successfully",
@@ -424,6 +400,7 @@ export async function addressGet(req: Request, res: Response) {
       _id: userID,
     });
 
+    // if no user exists, return bad request
     if (!userID || !existingUser) {
       return res.status(400).json({
         error: "Bad Request",
@@ -439,13 +416,11 @@ export async function addressGet(req: Request, res: Response) {
 }
 
 export async function addressDelete(req: Request, res: Response) {
-  console.log("addressDelete1")
   try {
-    console.log("addressDelete2")
     //@ts-ignore
     const addressID = req.query.addressID; //current address's id
-    console.log(addressID)
 
+  // if address not exists, return bad request
     if (!addressID) {
       return res.status(400).json({
         error: "Bad Request",
@@ -474,8 +449,8 @@ export async function addressEdit(req: Request, res: Response) {
   try {
     const address = req.body;
     const addressID = req.query.addressID;
-    console.log("edit",address)
 
+    // if address not exists, return bad request
     if (!addressID) {
       return res.status(400).json({
         error: "Bad Request",
@@ -489,7 +464,6 @@ export async function addressEdit(req: Request, res: Response) {
         message: `Address with ID:${addressID} not found!`,
       });
     }
-    console.log("dafjlaj",addressToBeEdit)
 
     const addressResponse = AddressSchema.findOneAndUpdate({ _id: addressToBeEdit._id }, address, { new: true });
     addressResponse
@@ -508,7 +482,6 @@ export async function addressEdit(req: Request, res: Response) {
       .catch((error) => {
         console.error('Error updating Address:', error);
       });
-    console.log("dafa",addressResponse)
     return res.status(200).json({
       message: "Address updated successfully",
     });
@@ -516,50 +489,11 @@ export async function addressEdit(req: Request, res: Response) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
-/*
-export async function deleteUser(req: Request, res: Response) {
-  const { id } = req.params; //the requested id
-  try {
-    //@ts-ignore
-    const userID = req.userId; //current user's id
-    if (!id) {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "No id defined",
-      });
-    }
-    let userToBeDeleted = await Userschema.findById({ _id: id });
-    if (!userToBeDeleted) {
-      return res.status(404).json({
-        error: "Not Found",
-        message: `User with ID:${id} not found!`,
-      });
-    }
-    if (id !== userID) {
-      return res.status(403).json({
-        error: "Forbidden",
-        message: `You do not have the rights to delete the user with ID:${id}`,
-      });
-    }
-
-    await Userschema.findByIdAndDelete(id);
-    await ProfileSchema.findOneAndDelete({ userID: id });
-    return res.status(200).json({
-      message: "User deleted successfully",
-    });
-  } catch (error) {
-    return res.status(500).json(internalServerErrorMessage);
-  }
-}
-*/
 
 export async function getOrder(req: Request, res: Response) {
-  console.log("getOrder")
   try {
-    console.log("getOrder")
     //@ts-ignore
     const userID = req.userId; //current user's id
-    console.log(userID)
     const existingUser = await Userschema.findOne({
       _id: userID,
     });
@@ -571,6 +505,7 @@ export async function getOrder(req: Request, res: Response) {
       });
     }
 
+    // find order by user id
     const order = await findOrderByUser(userID);
     return res.status(200).send(order);
   } catch (error) {
@@ -579,12 +514,13 @@ export async function getOrder(req: Request, res: Response) {
 }
 
 export async function getOrderById(req: Request, res: Response) {
-  console.log("getOrderById!")
+
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
     const orderID = stringID.substring(8)
-    console.log("getOrderById!11",orderID)
+
+    // get order by order id
     let order = await findOrderById(orderID);
     if (!order) {
       return res.status(404).json({
@@ -599,12 +535,13 @@ export async function getOrderById(req: Request, res: Response) {
 }
 
 export async function getServicesByOrderId(req: Request, res: Response) {
-  console.log("getServicesByOrderId!")
+
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
     const orderID = stringID;
-    console.log(orderID);
+
+    // get services by order id
     let services = await findServicesByOrderId(orderID);
     if (!services) {
       return res.status(404).json({
@@ -612,7 +549,7 @@ export async function getServicesByOrderId(req: Request, res: Response) {
         message: `Order with ID:${orderID} not found!`,
       });
     }
-    console.log(services);
+
     return res.status(200).json(services);
     }catch (error) {
     return res.status(500).json(internalServerErrorMessage);
@@ -620,12 +557,13 @@ export async function getServicesByOrderId(req: Request, res: Response) {
 }
 
 export async function getPaymentByOrderId(req: Request, res: Response) {
-  console.log("getPaymentByOrderId!")
+
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
     const orderID = stringID.substring(8);
-    console.log("getPaymentByOrderId!111",orderID);
+
+    // get payment by order id
     let payment = await findPaymentByOrderId(orderID);
     if (!payment) {
       return res.status(200).json({
@@ -633,7 +571,7 @@ export async function getPaymentByOrderId(req: Request, res: Response) {
         payment: null,
       });
     }
-    console.log(payment);
+
     return res.status(200).json({payment:payment});
     }catch (error) {
     return res.status(500).json(internalServerErrorMessage);
@@ -641,13 +579,15 @@ export async function getPaymentByOrderId(req: Request, res: Response) {
 }
 
 export async function getPromocodeByOrderId(req: Request, res: Response) {
-  console.log("getPromocodeByOrderId!")
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
     const orderID = stringID.substring(8);
+
+    // get order by order id
     let order = await findOrderById(orderID);
     if (order && order.codeValue) {
+      // get promocode by code value
       let promocode = await findPromododeByCode(order.codeValue);
       if (!promocode) {
         return res.status(200).json({promocode: null});
