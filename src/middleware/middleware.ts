@@ -19,25 +19,20 @@ export const allowCrossDomain = (
   }
 };
 
+// middleware to check user authentication
 export async function checkAuthentication(
   req: Request,
   res: Response,
   next: any
 ) {
+  // check if authorization header exists (Authorization: document.cookie)
   if (!req.headers.authorization) {
     return res.status(401).send({
       error: "Unauthorized",
       message: "No token provided in the request",
     });
   }
-  /*
-  const token = req.headers.authorization.substring(6);
-  // const cookie = req.headers.authorization;
-  // const token = cookie.substring(cookie.indexOf("=") + 1);
-
-  console.log("check authentication", token);
-  */
-  
+  // extract the token from the "userLogin" cookie
   let token = '';
   const cookies = req.headers.authorization?.split(';');
   if (cookies) {
@@ -49,7 +44,6 @@ export async function checkAuthentication(
       }
     }
   }
-
   // verifies secret and checks exp
   jwt.verify(token, JwtSecret, (err, decoded) => {
     if (err)
@@ -64,19 +58,20 @@ export async function checkAuthentication(
   });
 }
 
-
+// middleware to check admin authentication
 export async function checkAdminAuthentication(
   req: Request,
   res: Response,
   next: any
 ) {
+  // check if authorization header exists (Authorization: document.cookie)
   if (!req.headers.authorization) {
     return res.status(401).send({
       error: "Unauthorized",
       message: "No token provided in the request",
     });
   }
-  
+  // extract the token from the "adminLogin" cookie
   let token = '';
   const cookies = req.headers.authorization?.split(';');
   if (cookies) {
@@ -88,7 +83,7 @@ export async function checkAdminAuthentication(
       }
     }
   }
-  console.log(cookies,token);
+  // check if the admin token exists and proceed to the next part if valid
   if (token.length===0){
     return res.status(401).send({
       error: "Unauthorized",

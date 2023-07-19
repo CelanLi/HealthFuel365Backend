@@ -30,6 +30,7 @@ export const findAlternative = async (
       ...commonConditions,
       category: "snacks",
       $or: [ { productName: { $regex: "chip", $options: "i" } }, // including "chip" and case-insensitive e.g., fruit chips
+             { productName: { $regex: "popcorn", $options: "i"  } },
              { productName: { $regex: "mais|rice", $options: "i"  } } // including "mais" or "rice" and case-insensitice e.g., some snacks made from mais
            ]
     }));
@@ -70,7 +71,7 @@ export const findAlternative = async (
     return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
       category: "snacks",
-      productName: { $regex: "cookies|biscuits|knusperbrot|flapjack", $options: "i" } 
+      productName: { $regex: "cookies|biscuits|knusperbrot|flapjack|riegel", $options: "i" } 
     }));
   } 
   /* 6. junk food type : high salt salami*/
