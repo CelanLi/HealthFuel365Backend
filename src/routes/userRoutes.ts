@@ -26,6 +26,4 @@ userRoutes.get("/getServiceByOrderId",checkAuthentication,UserController.getServ
 userRoutes.get("/getPaymentByOrderId",checkAuthentication,UserController.getPaymentByOrderId)
 userRoutes.get("/getPromocodeByOrderId",checkAuthentication,UserController.getPromocodeByOrderId)
 
-//userRoutes.delete("/:id", checkAuthentication, UserController.deleteUser);
-
 export default userRoutes;

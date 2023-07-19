@@ -24,7 +24,7 @@ export async function getRecommendationsWithCookies(req: Request, res: Response)
     try {
       //@ts-ignore
       const userID = req.userId;
-      console.log("userID",userID);
+
       let recommendations = await findRecommendationsWithCookies(userID);
       if (!recommendations) {
         return res.status(404).json({

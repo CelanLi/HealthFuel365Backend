@@ -11,11 +11,13 @@ import user from "../models/user";
 import { findProductByID } from "./productService";
 
 
-// for guest users
+// get recommended products for guest users
 export const findRecommendations = async ( ): Promise<ProductInterface[] | null> => {
-  console.log("findRecommendations")
   /* common conditions of recommendations */
+
+  /* these information can be searched in product detail collection */
   const detail = await ProductDetailSchema.find({
+    // one of fat, sugar, salt level should be low
     $or: [
       { fatLevel: "low" },
       { sugarLevel: "low" }, 
@@ -27,53 +29,59 @@ export const findRecommendations = async ( ): Promise<ProductInterface[] | null>
       { $and: [ { fatLevel: "high" }, { sugarLevel : "high" }]},
       { $and: [ { saltLevel: "high" }, { sugarLevel : "high" }]},
     ]
-  });  
+  });
+
+  // get id list of products which satisfy conditions above
   const productIds = detail.map((productDetail)=> productDetail.productID);
+
+  /* these information can be searched in product collection */
   const commonConditions = {
     nutriScore: { $in: ["A", "B", "C"] },
     capacity: { $gt: 0 },
     productID: { $in: productIds }
   }
-  /* 1. if user is a guest, return randomized products  */
-  // TODO: maybe some popular products should be recommended to customers
-  
+
+  /* 1. if user is a guest, return randomized products which satisfy conditions above  */
   return getRandomizedRecommendations(await ProductSchema.find({
       ...commonConditions,
   }))
 }
 
+// get recommended products for registered users
 export const findRecommendationsWithCookies = async (_id: string): Promise<ProductInterface[] | null> => {
-  console.log("findRecommendationsWithCookies");
   const recommendationList = await getRecommendationListById(_id);
   if (recommendationList) {
+    // map products ids in recommendation list to get product list
     const productIds = recommendationList.map(item => item.productID);
     const productList: ProductInterface[] = [];
+    // for each product in recommendation list, find product by product id, and push into product list 
     for (const productId of productIds) {
       const product = await findProductByID(productId);
       if (product) {
         productList.push(product);
       }
     }
+
+    // get randomized recommendations
     return getRandomizedRecommendations(productList);
   }
   return null;
 };
 
 export const getRecommendationListById = async (_id : string): Promise<RecommendationList[] | null | undefined> => {
-  console.log("getRecommendationListById")
+  // find recommendations from database by user id
   const recommendation = await RecommendationSchema.findOne({
     userId : _id,
   });
-  console.log(recommendation)
 
   const recommendationList = recommendation?.recommendationList;
-  console.log("111",recommendation?.recommendationList)
+
+  // if recommendation list is not null, return.
   if (recommendation && recommendationList) {
-    console.log("recommendationList",recommendationList)
     return recommendationList;
     } 
+  // else, generate recommendation list and get again.
   else {
-    console.log("222");
     await generateRecommendationList(_id);
     return getRecommendationListById(_id);
   }
@@ -95,12 +103,11 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
   const getPurchaseRecord = async ( ): Promise<PurchaseRecord[]> => {
     try {
       const orders = await getAllOrders();
-  
       const purchaseRecords: PurchaseRecord[] = [];
 
     for (const order of orders) {
       const userId = order.userID;
-      // for each order, get each product
+      // for each order, get each product, and push the purchase code into the purchase record list
       for (const orderProduct of order.orderProducts) {
         const productId = orderProduct.product.productID.toString();
         const purchaseRecord: PurchaseRecord = {
@@ -127,11 +134,12 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
     const productIds = new Set<string>();
     const userIds = new Set<string>();
   
+    // products appeared in purchase record
     for (const record of purchaseRecords) {
       productIds.add(record.productId);
       userIds.add(record.userId);
     }
-    // Create a 2D array filled with zeros
+    // Create a 2D array filled with zeros, product id is the row index, and user id is column index
     const itemUserMatrix: ItemUserMatrix = {};
     for (const productId of productIds) {
       itemUserMatrix[productId] = {};
@@ -141,18 +149,22 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
       }
     }
   
+    // for each purchase record, update the corresponding input
     for (const record of purchaseRecords) {
       const { userId, productId } = record;
   
+      // if a product id is not set to be the row index, then set
       if (!itemUserMatrix[productId]) {
         itemUserMatrix[productId] = {};
       }
   
+      // if a user id is not set to be the column index, then set
       if (!itemUserMatrix[productId][userId]) {
         itemUserMatrix[productId][userId] = 0;
       }
   
-      itemUserMatrix[productId][userId] +=1 ;  //calculate the purchase times
+      //calculate the purchase times
+      itemUserMatrix[productId][userId] +=1 ;  
     }
   
     return itemUserMatrix;
@@ -160,25 +172,36 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
 
   /* create the similarity matrix */
   export const createItemSimilarityMatrix = async ( ): Promise<void> => {
-    console.log("createItemSimilarityMatrix")
+    // delete the old item similarity matrix before create a new one
     await ItemSimilarityMatrixSchema.deleteMany({});
 
     // get purchase records
     const purchaseRecords = await getPurchaseRecord();
+
     // calculate item user matrix
     const itemUserMatrix = await calculateItemUserMatrix(purchaseRecords);
+    // get list of product ids
     const itemIds = Object.keys(itemUserMatrix);
   
+    // for each product in item user matrix, calculate the similarity of it and each another product
     for (let i = 0; i < itemIds.length; i++) {
+      // get the id of item i
       const itemId1 = itemIds[i];
+      // initialize the matrix column
       const matrixColumn = [];
+
+      // for each other product except for product i, calculate the column of similarity matrix
       for (let j = 0; j < itemIds.length; j++) {
         if (i === j) {
           continue; // Skip comparing an item with itself
         }
-  
+        
+        // get the id of item j
         const itemId2 = itemIds[j];
+
+        // calculate cosine similarity of products using the vector gained from item-user matrix
         const similarity = calculateCosineSimilarity(itemUserMatrix[itemId1], itemUserMatrix[itemId2]);
+        // push similarity and corresponding id to the matrix column
         matrixColumn.push(
           {
             productId: itemId2,
@@ -186,6 +209,7 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
           },
         )
       }
+      // save each column
       try {
         await ItemSimilarityMatrixSchema.create({
           productId: itemId1,
@@ -196,15 +220,16 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
       }
     }
   };
+
   /* generate recommendation list for users */
   export const generateRecommendationList = async (_id: string): Promise<void> => {
     console.log("generateRecommendationList")
     /* 0. profile conditions */
 
-    // profile conditions
+    // get profile
     const profile = await getProfile(_id);
 
-    // Firstly, the requirements in user profile must be fullfilled.
+    // Firstly, the basic requirements must be fullfilled.
     const conditions1 = {
       $nor: [
         { $and: [ { fatLevel: "high" }, { saltLevel : "high" }, { sugarLevel : "high" }]},
@@ -213,6 +238,9 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
         { $and: [ { saltLevel: "high" }, { sugarLevel : "high" }]},
       ]
     };
+
+    // Then, check the requirements in profile
+    // initialize the condition list, which is used to check the conditions can be found in product detail colleciton
     const conditions2 = [];
 
     // push conditions dynamically
@@ -240,12 +268,18 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
       conditions2.push({ vegetarian:true });
     }
 
+    // form a query
     const query: FilterQuery<ProductDetailInterface> = {
       $and: [conditions1, ...conditions2],
     };
     
+    // get product list using query
     const detail2 = await ProductDetailSchema.find(query);
+
+    // get ids of products which satisfy query conditions
     const productIds2 = detail2.map((productDetail)=> productDetail.productID);
+
+    // other profile conditions which can be found in product colleciton
     const profileConditions = {
       nutriScore: { $in: profile?.nutriPreference },
       capacity: { $gt: 0 },
@@ -255,25 +289,30 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
     /* 1. get all products bought by a user */
     const allProductList = await getAllProductsByUserId(_id)
 
-    /* 2. search the similarity matrix, get four of the most similar products of items */
+    /* 2. search the similarity matrix, get the most similar products for each product bought by user */
     const recommendedIdArray = [];
     for (const productId in allProductList){
       recommendedIdArray.push(await getSimilarProducts(productId))
     }
 
+    // remove the product appears more than one time in the recommended id array
     const flattenedArray = recommendedIdArray.flat();
     const recommendedIds = [...new Set(flattenedArray)];
-    console.log("recommendedIds",recommendedIds)
 
+    // form a query using recommened ids
     const queryConditions = {
       $and: [
         { productID: { $in: recommendedIds } },
         profileConditions
       ]
     };
+
+    // get products which satisfy product conditions, in case that the number recommended products is less than 12
     const ProfileList = await ProductSchema.find({
       ...profileConditions,
     })
+
+    // get recommended products
     const productList = await ProductSchema.find({
       ...queryConditions,
     })
@@ -281,7 +320,7 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
     /* 3. generate a list and store it into database */
     const recommendationList = productList.map(item => ({ productID: item.productID }));
 
-    // if the recommendation list is not long enough, add some profile products
+    // if the recommendation list is not long enough, add some products which satisfy product conditions
     while (recommendationList.length < 20 && ProfileList.length > 0) {
       const randomIndex = Math.floor(Math.random() * ProfileList.length);
       const randomProduct = ProfileList.splice(randomIndex, 1)[0]; // remove the random product
@@ -292,9 +331,11 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
         continue; // if duplicate, skip this product
       }
 
-      recommendationList.push(randomProduct); // add random product to product list
+      // add random product to product list
+      recommendationList.push(randomProduct); 
     }
     
+    // update the recommendation list
     try {
       await RecommendationSchema.findOneAndUpdate(
         { userId: _id }, // query condition
@@ -308,17 +349,24 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
 
   }
 
+  /* get top 20 similar products */
   const getSimilarProducts = async (itemId : string) => {
+    // get the row index
     const item = await ItemSimilarityMatrixSchema.findOne({
       productId : itemId,
     });
+    // if item is not null, get the matrix column
     const similarProducts = item ? item.matrixColumn || [] : [];
+    // sort the similar products by their similarity
     const sortedProducts = similarProducts.sort((a, b) => b.similarity - a.similarity);
-    const topFourProducts = sortedProducts.slice(0, 20);
-    const topFourProductsIds = topFourProducts.map(product => product.productId);
-    return topFourProductsIds;
+
+    // get top 20 products, and get their ids
+    const topProducts = sortedProducts.slice(0, 20);
+    const topProductsIds = topProducts.map(product => product.productId);
+    return topProductsIds;
   }
 
+  /* get all products purchaed by user id */
   const getAllProductsByUserId =async (userID:string) => {
     const orderList = await findOrderByUser(userID);
     const productList = [];
@@ -335,6 +383,7 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
   }
 
   /* calculate cosine similarity of vectors */
+  /* input vectors are composed of the times for each user buying each product  */
   function calculateCosineSimilarity(
     vector1: { [userId: string]: number },
     vector2: { [userId: string]: number }
@@ -342,6 +391,8 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
     const dotProduct = calculateDotProduct(vector1, vector2);
     const magnitude1 = calculateMagnitude(vector1);
     const magnitude2 = calculateMagnitude(vector2);
+
+    // similarity = (v1 dot multiply v2) / (|v1| * |v2|)
     const similarity = dotProduct / (magnitude1 * magnitude2);
     return similarity;
   }

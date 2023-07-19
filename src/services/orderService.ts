@@ -154,6 +154,8 @@ export const cancelPayPal = async (paymentID: string) => {
   if (!payment) {
     return "";
   }
+
+  //1.change order status to "Cancelled"
   const { orderID } = payment;
   await OrderSchema.updateOne(
     { orderID: orderID },
@@ -162,13 +164,14 @@ export const cancelPayPal = async (paymentID: string) => {
     return "error";
   });
 
+  //2. delete Payment data from database
   await PaymentSchema.deleteMany({
     paymentID: paymentID,
   }).catch(() => {
     return "error";
   });
 
-  // capacity management
+  //3. capacity management
   const orderItem = await OrderSchema.findOne({
     orderID: orderID,
   });
@@ -176,7 +179,7 @@ export const cancelPayPal = async (paymentID: string) => {
   if (!orderItem) {
     return;
   }
-  
+
   const { orderProducts } = orderItem;
 
   for (const orderProduct of orderProducts) {
@@ -198,6 +201,8 @@ export const successPayPal = async (paymentID: string) => {
   if (!payment) {
     return "";
   }
+
+  //change order status to "Processing"
   const { orderID } = payment;
   await OrderSchema.updateOne(
     { orderID: orderID },
