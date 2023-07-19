@@ -7,15 +7,6 @@ export const mongoURI =
 export const JwtSecret = "very secret secret";
 export const imageServer = "http://localhost:5000/api";
 export const imageServiceURI = imageServer + "";
-export const openFoodFactsProductUri =
-  "https://world.openfoodfacts.org/api/v0/product/";
-//azure service
-// const apiKey = "";
-// const endpoint = "";
-// export const formRecognizerClient = new FormRecognizerClient(
-//   endpoint,
-//   new AzureKeyCredential(apiKey)
-// );
 
 export const internalServerErrorMessage = {
   error: "Internal server error",
