@@ -7,9 +7,9 @@ export const allowCrossDomain = (
   res: Response,
   next: NextFunction
 ) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "*");
+  res.header("Access-Control-Allow-Origin", "*"); // set response header, which allows request from each domain
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS"); // set response header, get, put post delete and options are allowed.
+  res.header("Access-Control-Allow-Headers", "*"); // header can include any information
 
   // intercept OPTIONS method
   if ("OPTIONS" == req.method) {
@@ -33,13 +33,13 @@ export async function checkAuthentication(
     });
   }
   // extract the token from the "userLogin" cookie
-  let token = '';
-  const cookies = req.headers.authorization?.split(';');
+  let token = "";
+  const cookies = req.headers.authorization?.split(";");
   if (cookies) {
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i].trim();
-      if (cookie.startsWith('userLogin=')) {
-        token = cookie.substring(10); 
+      if (cookie.startsWith("userLogin=")) {
+        token = cookie.substring(10);
         break;
       }
     }
@@ -72,25 +72,24 @@ export async function checkAdminAuthentication(
     });
   }
   // extract the token from the "adminLogin" cookie
-  let token = '';
-  const cookies = req.headers.authorization?.split(';');
+  let token = "";
+  const cookies = req.headers.authorization?.split(";");
   if (cookies) {
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i].trim();
-      if (cookie.startsWith('adminLogin=')) {
-        token = cookie.substring(11); 
+      if (cookie.startsWith("adminLogin=")) {
+        token = cookie.substring(11);
         break;
       }
     }
   }
   // check if the admin token exists and proceed to the next part if valid
-  if (token.length===0){
+  if (token.length === 0) {
     return res.status(401).send({
       error: "Unauthorized",
       message: "Failed to authenticate token.",
     });
-  }
-  else{
+  } else {
     next();
   }
 }

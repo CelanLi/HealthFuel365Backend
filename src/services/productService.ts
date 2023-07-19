@@ -10,16 +10,19 @@ export const findProductByName = async (
   // search database for product which includes text
   const regexIncludes = RegExp(".*" + text + ".*", "i");
   if (selectedSort === "1") {
+    //sort products according to nutri-score
     console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
       productName: regexIncludes,
     }).sort({ nutriScore: 1 });
   } else if (selectedSort === "2") {
+    //sort products according to name
     console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
       productName: regexIncludes,
     }).sort({ productName: 1 });
   } else if (selectedSort === "3") {
+    //sort products according to price ascending
     console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
       productName: regexIncludes,
@@ -27,6 +30,7 @@ export const findProductByName = async (
   } else {
     console.log(selectedSort + "selected sort");
     return await ProductSchema.find({
+      //sort products according to price dscending
       productName: regexIncludes,
     }).sort({ productPrice: -1 });
   }
@@ -138,8 +142,8 @@ export const addToShoppingCart = async (
 
 export const findAllBrands = async () => {
   const products = await ProductSchema.find();
-  const brands = products.map( (product) => product.productBrand);
-  // the returned brand names are unique and sort alphabetically 
+  const brands = products.map((product) => product.productBrand);
+  // the returned brand names are unique and sort alphabetically
   const uniqueBrands = [...new Set(brands)].sort();
   console.log(uniqueBrands);
   return uniqueBrands;

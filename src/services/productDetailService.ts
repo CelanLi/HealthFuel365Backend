@@ -11,9 +11,8 @@ export const findDetailByID = async (
     productID: id,
   });
   const product = await findProductByID(id);
-  console.log(JSON.stringify(productDetail));
   if (product != null && productDetail == null) {
-    return [product, null];
+    return [product, null]; // if corresponding detail not found
   } else if (product != null && productDetail != null) {
     return [product, productDetail];
   } else {
