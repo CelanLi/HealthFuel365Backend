@@ -35,6 +35,8 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
+## Folder structure
+
 ```bash
 └── src
     ├── controllers
@@ -43,3 +45,13 @@ You don't have to ever use `eject`. The curated feature set is suitable for smal
     ├── routes
     └── services
 ```
+
+controllers comprise the controller functions for resolving, providing, updating, adding and deleting of products and user information.
+
+middleware contains the methods to authenticate the user through the token included in the request and to add the id of the user to the request before he passes it on.
+
+models includes interfaces describing the composition of data types like the data structure of a product in the database.
+
+routes determine how a response to a client request at a particular endpoint will respond. It contains the Uniform Resource Identifier (URI) and the specific HTTP request method.
+
+services contains methods regarding getting, adding, updating and deleting receipt, product information from the database or to communicate with the Azure service.
