@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { badRequestErrorMessage, internalServerErrorMessage } from "../config";
+import { internalServerErrorMessage } from "../config";
 import { findAlternative } from "../services/alternativeService";
 
 export async function getAlternative(req: Request, res: Response) {

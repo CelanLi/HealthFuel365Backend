@@ -4,7 +4,6 @@ import ProductDetailSchema from "../models/productDetail";
 export const findAlternative = async (
   junkFoodType: string
 ): Promise<ProductInterface[] | null> => {
-  console.log("selected item: " + junkFoodType );
   /* common conditions of alternatives */
   const detail = await ProductDetailSchema.find({
     $or: [
@@ -39,10 +38,10 @@ export const findAlternative = async (
   else if (junkFoodType === "1") {
     return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
-      productName: { $regex: "choco|schoko", $options: "i"} // chocolate flavored items
+      productName: { $regex: "choco|schoko|kakao", $options: "i"} // chocolate flavored items
     }));
   } 
-  /* 3. junk food type: coco-cola, which fat/salt Level is low and sugat level is high */
+  /* 3. junk food type: unhealthy beverages, e.g., coco-cola, which fat/salt Level is low and sugat level is high */
   else if (junkFoodType === "2") {
     const betterNutrionProduct= await ProductDetailSchema.find({ 
        sugarLevel: { $ne: "high" },
@@ -74,7 +73,7 @@ export const findAlternative = async (
       productName: { $regex: "cookies|biscuits|knusperbrot|flapjack", $options: "i" } 
     }));
   } 
-  /* 6. junk food type : salami*/
+  /* 6. junk food type : high salt salami*/
   else{
     return getRandomizedAlternatives(await ProductSchema.find({
       ...commonConditions,
