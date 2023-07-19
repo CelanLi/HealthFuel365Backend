@@ -4,6 +4,8 @@ import ProductDetailSchema, { ProductDetailInterface } from "../models/productDe
 import ItemSimilarityMatrixSchema, { ItemSimilarityMatrixInterface } from "../models/itemSimilarity";
 import RecommendationSchema, { RecommendationInterface, RecommendationList } from "../models/recommendation";
 
+import axios from 'axios';
+
 import { getProfile } from "./userService";
 import { findOrderByUser, getAllOrders } from "./orderService";
 import order, { OrderSchema } from "../models/order";
@@ -312,18 +314,36 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
       ...profileConditions,
     })
 
+    // get profile products with valid image url
+    const validProfileProducts = [];
+    for (const product of ProfileList) {
+      const isImageValid = await checkImageValidity(product.imageUrl);
+      if (isImageValid) {
+        validProfileProducts.push(product);
+      }
+    }
+
     // get recommended products
     const productList = await ProductSchema.find({
       ...queryConditions,
     })
 
+    // get recommended products with valid image url
+    const validRecommendProducts = [];
+    for (const product of productList) {
+      const isImageValid = await checkImageValidity(product.imageUrl);
+      if (isImageValid) {
+        validRecommendProducts.push(product);
+      }
+    }
+
     /* 3. generate a list and store it into database */
-    const recommendationList = productList.map(item => ({ productID: item.productID }));
+    const recommendationList = validRecommendProducts.map(item => ({ productID: item.productID }));
 
     // if the recommendation list is not long enough, add some products which satisfy product conditions
-    while (recommendationList.length < 20 && ProfileList.length > 0) {
-      const randomIndex = Math.floor(Math.random() * ProfileList.length);
-      const randomProduct = ProfileList.splice(randomIndex, 1)[0]; // remove the random product
+    while (recommendationList.length < 20 && validProfileProducts.length > 0) {
+      const randomIndex = Math.floor(Math.random() * validProfileProducts.length);
+      const randomProduct = validProfileProducts.splice(randomIndex, 1)[0]; // remove the random product
     
       // check if product already exists
       const isDuplicate = recommendationList.some(product => product.productID === randomProduct.productID);
@@ -420,3 +440,13 @@ export const getRecommendationListById = async (_id : string): Promise<Recommend
     magnitude = Math.sqrt(magnitude);
     return magnitude;
   }
+
+  /* check whether image url is valid */
+  const checkImageValidity = async (imageUrl: string): Promise<boolean> => {
+    try {
+      const response = await axios.head(imageUrl);
+      return response.status === 200;
+    } catch (error) {
+      return false;
+    }
+  };
