@@ -43,7 +43,9 @@ App is now running at [http://localhost:8081](http://localhost:8081) in developm
     ├── routes
     └── services
 └── data_clean
-    ├── main.py
+    ├── all_product_with_price.py
+    ├── merge_all_product.py
+    ├── merge_all_product_detail.py
     ├── product_detail.py
     └── product.py
 ```
@@ -58,4 +60,4 @@ routes determine how a response to a client request at a particular endpoint wil
 
 services contains methods regarding getting, adding, updating and deleting product, user, order information from the database.
 
-data_clean  is a set of functions designed to process and sanitize product data obtained from OpenFoodFacts. It performs a series of essential operations, such as format transformation, preprocessing, and other data cleaning tasks. The goal is to convert the raw product data into a format suitable for storage in MongoDB.
+data_clean  is a set of functions designed to process product data obtained from OpenFoodFacts. It performs a series of essential operations, such as format transformation, preprocessing, and other data cleaning tasks. The goal is to convert the raw product data into a format suitable for storage in MongoDB.
