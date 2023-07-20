@@ -2,6 +2,8 @@ import pandas as pd
 import product
 
 # map for the productdetail schema
+
+
 def map_columns_name(input_csv_file, output_csv_file):
     df = pd.read_csv(input_csv_file)
     df = product.filter(df)
@@ -19,9 +21,9 @@ def map_columns_name(input_csv_file, output_csv_file):
     df["vegetarian"] = df["labels"].str.contains("Vegetarisch", case=False)
     # ---------- Generate the "productDescription" by combining various nutrition-related columns--------------
     description_string = ""
-    ## ingredients
+    # ingredients
     ingredients = "Ingredients: " + df["ingredients_text_en"] + "; "
-    ## allergens
+    # allergens
     df["allergens_tags"] = df["allergens_tags"].apply(
         lambda tags: ", ".join(
             [tag.split(":")[1] for tag in tags.split(",") if "en:" in tag]
@@ -35,10 +37,10 @@ def map_columns_name(input_csv_file, output_csv_file):
         else ""
     )
 
-    ## nova
+    # nova
     nova = "Nova: " + df["off:nova_groups"].astype(str) + "; "
 
-    ## used for nutritional table 
+    # used for nutritional table
     '''
     Calculate the energy column based on energy-kj_value and energy-kcal_value
     If both values are not null, combine them as "kj (kcal)"
@@ -61,15 +63,17 @@ def map_columns_name(input_csv_file, output_csv_file):
         axis=1,
     )
     energy = "Energy: " + df["energy"] + "; "
-    ### create columns for fat, sugar, fiber, proteins, and salt, along with their respective units
+    # create columns for fat, sugar, fiber, proteins, and salt, along with their respective units
     fat = "Fat: " + df["fat_value"].astype(str) + df["fat_unit"] + "; "
-    sugar = "Sugar: " + df["sugars_value"].astype(str) + df["sugars_unit"] + "; "
+    sugar = "Sugar: " + \
+        df["sugars_value"].astype(str) + df["sugars_unit"] + "; "
     fiber = "Fiber: " + df["fiber_value"].astype(str) + df["fiber_unit"] + "; "
     proteins = (
-        "Proteins: " + df["proteins_value"].astype(str) + df["proteins_unit"] + "; "
+        "Proteins: " +
+        df["proteins_value"].astype(str) + df["proteins_unit"] + "; "
     )
     salt = "Salt: " + df["salt_value"].astype(str) + df["salt_unit"] + ";"
-    ### combine the nutrition values into one string
+    # combine the nutrition values into one string
     description_string = (
         description_string
         + ingredients
@@ -99,3 +103,31 @@ def map_columns_name(input_csv_file, output_csv_file):
     ]
     df = df[selected_columns]
     df.to_csv(output_csv_file, index=False)
+
+
+def productDetailJoin(
+    brandFile, formattedData, output_csv_file
+):  # join the details with formatted products data generated in product.py
+    df1 = pd.read_csv(brandFile, dtype=str)
+    df2 = pd.read_csv(formattedData, dtype=str)
+    merged_df = pd.merge(df1, df2, on="productID")
+    columns_to_drop = [  # drop redundant columns
+        "fatLevel",
+        "saltLevel",
+        "sugarLevel",
+        "imageUrl",
+        "vegan_y",
+        "vegetarian_y",
+    ]
+    merged_df_final = merged_df.drop(columns_to_drop, axis=1)
+    merged_df_final.rename(
+        columns={
+            "vegetarian_x": "vegetarian",
+            "vegan_x": "vegan",
+            "fat_level": "fatLevel",
+            "sugar_level": "sugarLevel",
+            "salt_level": "saltLevel",
+        },
+        inplace=True,
+    )
+    merged_df_final.to_csv(output_csv_file, index=False)
