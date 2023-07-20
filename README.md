@@ -42,6 +42,10 @@ App is now running at [http://localhost:8081](http://localhost:8081) in developm
     ├── models
     ├── routes
     └── services
+└── data_clean
+    ├── main.py
+    ├── product_detail.py
+    └── product.py
 ```
 
 controllers comprise the controller functions for resolving, providing, updating, adding and deleting of products, user and order information.
@@ -53,3 +57,5 @@ models includes interfaces describing the composition of data types like the dat
 routes determine how a response to a client request at a particular endpoint will respond. It contains the Uniform Resource Identifier (URI) and the specific HTTP request method.
 
 services contains methods regarding getting, adding, updating and deleting product, user, order information from the database.
+
+data_clean  is a set of functions designed to process and sanitize product data obtained from OpenFoodFacts. It performs a series of essential operations, such as format transformation, preprocessing, and other data cleaning tasks. The goal is to convert the raw product data into a format suitable for storage in MongoDB.
