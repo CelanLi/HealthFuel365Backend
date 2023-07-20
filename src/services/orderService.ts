@@ -117,7 +117,6 @@ export const addOrder = async (
         codeValue: codeValue,
       };
 
-      console.log(orDelivery, orService);
       const service = {
         orderID: newOrder._id,
         // orDelivery: DHL/HERMES/Rapid
@@ -218,7 +217,6 @@ export const findOrderByUser = async (
   const orders = await OrderSchema.find({
     userID: userID,
   });
-  console.log("orders=", orders);
   return orders;
 };
 

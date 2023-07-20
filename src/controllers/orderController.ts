@@ -16,7 +16,8 @@ import {
 } from "../services/orderService";
 
 export async function createOrder(req: Request, res: Response) {
-  const { shoppingCartID, orDelivery, orService, orAddressID, paymentID} = req.body;
+  const { shoppingCartID, orDelivery, orService, orAddressID, paymentID } =
+    req.body;
   try {
     //error
     if (!shoppingCartID || typeof shoppingCartID != "string") {
@@ -37,8 +38,14 @@ export async function createOrder(req: Request, res: Response) {
         .json(badRequestErrorMessage("Missing body parameter orAddressID"));
     }
 
-    try { 
-      await addOrder(shoppingCartID, orDelivery, orService, orAddressID, paymentID);
+    try {
+      await addOrder(
+        shoppingCartID,
+        orDelivery,
+        orService,
+        orAddressID,
+        paymentID
+      );
       return res.status(200).send({ code: 0, message: "sucess" });
     } catch (err) {
       return res.status(200).send({ code: -1, message: err });
@@ -49,9 +56,7 @@ export async function createOrder(req: Request, res: Response) {
 }
 
 export async function getOrder(req: Request, res: Response) {
-  console.log("getOrder");
   try {
-    console.log("getOrder");
     //@ts-ignore
     const userID = req.userId; //current user's id
     const existingUser = await Userschema.findOne({

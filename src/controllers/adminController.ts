@@ -216,7 +216,6 @@ export async function getProductsWithDetails(req: Request, res: Response) {
     if (!keywords || typeof keywords != "string") {
       keywords = "";
     }
-    console.log("keywords" + keywords);
     const productsWithDetails = await findProductsWithDetails(keywords);
     return res.status(200).send(productsWithDetails);
   } catch (error) {
@@ -226,7 +225,6 @@ export async function getProductsWithDetails(req: Request, res: Response) {
 
 export async function getProductWithDetail(req: Request, res: Response) {
   try {
-    console.log("in getProductWithDetail");
     const { productID } = req.params;
     const productWithDetail = await findProductWithDetail(productID);
     return res.status(200).send(productWithDetail);

@@ -10,10 +10,19 @@ import AddressSchema from "../models/address";
 import ShoppingCartSchema from "../models/shoppingcart";
 
 import { findAddressByUser } from "../services/userService";
-import { findOrderByUser, findOrderById, findServicesByOrderId, findPaymentByOrderId, findPromododeByCode } from "../services/orderService";
+import {
+  findOrderByUser,
+  findOrderById,
+  findServicesByOrderId,
+  findPaymentByOrderId,
+  findPromododeByCode,
+} from "../services/orderService";
 
 import user from "../models/user";
-import { ConnectionClosedEvent, MongoUnexpectedServerResponseError } from "mongodb";
+import {
+  ConnectionClosedEvent,
+  MongoUnexpectedServerResponseError,
+} from "mongodb";
 import order, { OrderSchema } from "../models/order";
 import promocode from "../models/promocode";
 import { generateRecommendationList } from "../services/recommendationService";
@@ -61,58 +70,56 @@ export async function register(req: Request, res: Response) {
     newUser.password = hashedPassword;
     //save new user into database
     let user = await newUser.save();
-    console.log(user._id)
-    
+
     // create a default profile
     ProfileSchema.create({
       userID: user._id,
       typeOfEater: "Omnivore",
       losingWeightAsGoal: false,
-      keepGoodDietAsGoal:false,
+      keepGoodDietAsGoal: false,
       lowInFat: false,
       lowInSugar: false,
       lowInSalt: false,
-      nutriPreference: ['A','B','C','D','E']
+      nutriPreference: ["A", "B", "C", "D", "E"],
     });
 
     // create a shopping cart
-  const shoppingCartTest = new ShoppingCartSchema({
-    shoppingCartID: user._id,
-    itemPrice: 0,
-    totalSaving: 0,
-    subTotal: 0,
-    itemQuantity: 0,
-    codeValue: ""
-  });
-  
-  console.log("run")
-  shoppingCartTest.validate()
-  .catch((error) => {
-    // if the validation fails
-    const validationErrors = [];
-    for (let key in error.errors) {
-      if (error.errors.hasOwnProperty(key)) {
-        const errorMessage = error.errors[key].message;
-        validationErrors.push(errorMessage);
-      }
-      console.log(error)
-    }
-    console.error('Validation failed:', validationErrors);
-  })
-  .then(() => {
-    console.log("passed")
-    // validation passed, save
-    shoppingCartTest.save()
-      .then((savedShoppingCart) => {
-        console.log('ShoppingCart saved:', savedShoppingCart);
-      })
-      .catch((error) => {
-        console.error('Save failed:', error);
-      });
-  });
-  console.log("end")
+    const shoppingCartTest = new ShoppingCartSchema({
+      shoppingCartID: user._id,
+      itemPrice: 0,
+      totalSaving: 0,
+      subTotal: 0,
+      itemQuantity: 0,
+      codeValue: "",
+    });
 
-  // give a token to user
+    shoppingCartTest
+      .validate()
+      .catch((error) => {
+        // if the validation fails
+        const validationErrors = [];
+        for (let key in error.errors) {
+          if (error.errors.hasOwnProperty(key)) {
+            const errorMessage = error.errors[key].message;
+            validationErrors.push(errorMessage);
+          }
+          console.log(error);
+        }
+        console.error("Validation failed:", validationErrors);
+      })
+      .then(() => {
+        // validation passed, save
+        shoppingCartTest
+          .save()
+          .then((savedShoppingCart) => {
+            console.log("ShoppingCart saved:", savedShoppingCart);
+          })
+          .catch((error) => {
+            console.error("Save failed:", error);
+          });
+      });
+
+    // give a token to user
     const expirationTime = 86400; // expires in 24 hours
     // create a token
     const token = jwt.sign(
@@ -173,8 +180,6 @@ export async function login(req: Request, res: Response) {
       }
     );
 
-    console.log(token)
-
     return res.status(200).json({
       token: token,
       expiresIn: expirationTime,
@@ -191,26 +196,24 @@ export async function getUser(req: Request, res: Response) {
 
     // find user by user id
     Userschema.findById(userID)
-    .exec()
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({
-          error: "Not Found",
-          message: "User not found",
-        });
-      }
-      //send out modified userobject, since we do not want to send out the password
-      const requestedUser = {
-        username: user.username,
-        id: user._id,
-        avatar: user.avatar ? user.avatar : null
-      };
-      return res.status(200).json(requestedUser);
-    })
-    .catch((error) => res.status(500).json(internalServerErrorMessage));
-  } catch (error) {
-    
-  }
+      .exec()
+      .then((user) => {
+        if (!user) {
+          return res.status(404).json({
+            error: "Not Found",
+            message: "User not found",
+          });
+        }
+        //send out modified userobject, since we do not want to send out the password
+        const requestedUser = {
+          username: user.username,
+          id: user._id,
+          avatar: user.avatar ? user.avatar : null,
+        };
+        return res.status(200).json(requestedUser);
+      })
+      .catch((error) => res.status(500).json(internalServerErrorMessage));
+  } catch (error) {}
 }
 
 export async function avatarEdit(req: Request, res: Response) {
@@ -218,7 +221,6 @@ export async function avatarEdit(req: Request, res: Response) {
   try {
     //@ts-ignore
     const userID = req.userId; //current user's id
-    console.log("userId",userID)
 
     // find the user account by id
     const existingUser = await Userschema.findOne({
@@ -243,18 +245,19 @@ export async function avatarEdit(req: Request, res: Response) {
     userResponse
       .then((updatedAvatar) => {
         // If updated, then save
-        if(updatedAvatar){
-          updatedAvatar.save()
-          .then((savedAvatar) => {
-            console.log('Avatar saved:', savedAvatar);
-          })
-          .catch((error) => {
-            console.error('Error saving profile:', error);
-          });
+        if (updatedAvatar) {
+          updatedAvatar
+            .save()
+            .then((savedAvatar) => {
+              console.log("Avatar saved:", savedAvatar);
+            })
+            .catch((error) => {
+              console.error("Error saving profile:", error);
+            });
         }
       })
       .catch((error) => {
-        console.error('Error updating profile:', error);
+        console.error("Error updating profile:", error);
       });
 
     await existingUser.save(); // save the updated user
@@ -262,13 +265,11 @@ export async function avatarEdit(req: Request, res: Response) {
       message: "Avatar updated successfully",
     });
   } catch (error) {
-    // console.log(error)
     return res.status(500).json(internalServerErrorMessage);
   }
 }
 
 export async function profileEdit(req: Request, res: Response) {
-  
   const profile = req.body;
   try {
     //@ts-ignore
@@ -298,26 +299,31 @@ export async function profileEdit(req: Request, res: Response) {
       });
     }
 
-    const profileResponse = ProfileSchema.findOneAndUpdate({ _id: profileToBeEdit._id }, profile, { new: true });
+    const profileResponse = ProfileSchema.findOneAndUpdate(
+      { _id: profileToBeEdit._id },
+      profile,
+      { new: true }
+    );
     profileResponse
       .then((updatedProfile) => {
         // If updated, then save
-        if(updatedProfile){
-          updatedProfile.save()
-          .then((savedProfile) => {
-            console.log('Profile saved:', savedProfile);
-          })
-          .catch((error) => {
-            console.error('Error saving profile:', error);
-          });
+        if (updatedProfile) {
+          updatedProfile
+            .save()
+            .then((savedProfile) => {
+              console.log("Profile saved:", savedProfile);
+            })
+            .catch((error) => {
+              console.error("Error saving profile:", error);
+            });
         }
       })
       .catch((error) => {
-        console.error('Error updating profile:', error);
+        console.error("Error updating profile:", error);
       });
 
-      //update recommendation list after the profile update
-      generateRecommendationList(userID)
+    //update recommendation list after the profile update
+    generateRecommendationList(userID);
 
     return res.status(200).json({
       message: "Profile updated successfully",
@@ -360,7 +366,7 @@ export async function profileGet(req: Request, res: Response) {
 }
 
 export async function addressAdd(req: Request, res: Response) {
-  const newAddress = new AddressSchema(req.body)
+  const newAddress = new AddressSchema(req.body);
 
   try {
     //@ts-ignore
@@ -387,7 +393,7 @@ export async function addressAdd(req: Request, res: Response) {
       message: "Address added successfully",
     });
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return res.status(500).json(internalServerErrorMessage);
   }
 }
@@ -420,7 +426,7 @@ export async function addressDelete(req: Request, res: Response) {
     //@ts-ignore
     const addressID = req.query.addressID; //current address's id
 
-  // if address not exists, return bad request
+    // if address not exists, return bad request
     if (!addressID) {
       return res.status(400).json({
         error: "Bad Request",
@@ -465,22 +471,27 @@ export async function addressEdit(req: Request, res: Response) {
       });
     }
 
-    const addressResponse = AddressSchema.findOneAndUpdate({ _id: addressToBeEdit._id }, address, { new: true });
+    const addressResponse = AddressSchema.findOneAndUpdate(
+      { _id: addressToBeEdit._id },
+      address,
+      { new: true }
+    );
     addressResponse
       .then((updatedAddress) => {
         // If updated, then save
-        if(updatedAddress){
-          updatedAddress.save()
-          .then((savedAddress) => {
-            console.log('Address saved:', savedAddress);
-          })
-          .catch((error) => {
-            console.error('Error saving Address:', error);
-          });
+        if (updatedAddress) {
+          updatedAddress
+            .save()
+            .then((savedAddress) => {
+              console.log("Address saved:", savedAddress);
+            })
+            .catch((error) => {
+              console.error("Error saving Address:", error);
+            });
         }
       })
       .catch((error) => {
-        console.error('Error updating Address:', error);
+        console.error("Error updating Address:", error);
       });
     return res.status(200).json({
       message: "Address updated successfully",
@@ -514,11 +525,10 @@ export async function getOrder(req: Request, res: Response) {
 }
 
 export async function getOrderById(req: Request, res: Response) {
-
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
-    const orderID = stringID.substring(8)
+    const orderID = stringID.substring(8);
 
     // get order by order id
     let order = await findOrderById(orderID);
@@ -528,14 +538,13 @@ export async function getOrderById(req: Request, res: Response) {
         message: `Order with ID:${orderID} not found!`,
       });
     }
-      return res.status(200).json(order);
-    }catch (error) {
+    return res.status(200).json(order);
+  } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
 
 export async function getServicesByOrderId(req: Request, res: Response) {
-
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
@@ -551,13 +560,12 @@ export async function getServicesByOrderId(req: Request, res: Response) {
     }
 
     return res.status(200).json(services);
-    }catch (error) {
+  } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
 
 export async function getPaymentByOrderId(req: Request, res: Response) {
-
   try {
     //@ts-ignore
     const stringID = req.query.orderID as string;
@@ -572,8 +580,8 @@ export async function getPaymentByOrderId(req: Request, res: Response) {
       });
     }
 
-    return res.status(200).json({payment:payment});
-    }catch (error) {
+    return res.status(200).json({ payment: payment });
+  } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }
@@ -590,16 +598,14 @@ export async function getPromocodeByOrderId(req: Request, res: Response) {
       // get promocode by code value
       let promocode = await findPromododeByCode(order.codeValue);
       if (!promocode) {
-        return res.status(200).json({promocode: null});
+        return res.status(200).json({ promocode: null });
+      } else {
+        return res.status(200).json({ promocode: promocode });
       }
-      else{
-        return res.status(200).json({promocode:promocode});
-      }      
+    } else {
+      return res.status(200).json({ promocode: null });
     }
-    else{
-      return res.status(200).json({promocode: null});
-    }
-    }catch (error) {
+  } catch (error) {
     return res.status(500).json(internalServerErrorMessage);
   }
 }

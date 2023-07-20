@@ -187,7 +187,6 @@ export const findOrderById = async (
   const order = await OrderSchema.findOne({
     orderID: orderID,
   });
-  console.log(order);
   return order;
 };
 
@@ -221,7 +220,6 @@ export async function findProductWithDetail(productID: string) {
 export async function removeProduct(productID: string) {
   const result1 = await Productschema.deleteOne({ productID: productID });
   const result2 = await ProductDetail.deleteOne({ productID: productID });
-  console.log(JSON.stringify(result1));
   return result1;
 }
 
