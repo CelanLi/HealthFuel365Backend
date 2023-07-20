@@ -1,5 +1,4 @@
 import * as mongoose from "mongoose";
-import {} from "./types";
 
 export interface ProductInterface extends mongoose.Document {
   productID: string;

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { badRequestErrorMessage, internalServerErrorMessage } from "../config";
+import { internalServerErrorMessage } from "../config";
 import { findDetailByID } from "../services/productDetailService";
 export async function getDetailByID(req: Request, res: Response) {
   const { id } = req.params;
