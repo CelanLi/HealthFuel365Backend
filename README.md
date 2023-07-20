@@ -1,5 +1,5 @@
+# HealthFuel365
 ## Installition
-
 1. Before running the application, ensure you have the installed the following:
 
    [Node.js](https://nodejs.org/en) (version 18.16.0)
@@ -9,7 +9,14 @@
 ```bash
    npm install
 ```
+## Database Connection
+Before proceeding, please make sure you have correctly installed [MongoDB](https://www.mongodb.com/try/download/community-kubernetes-operator) on your system.
 
+After that, you can open your MongoDB Compass dashboard, click on "New Connection +," and copy and paste the following provided MongoDB URI:
+
+```bash
+  mongodb+srv://Healthfuel365:HEALTHFUEL365-team33@cluster0.qlftusn.mongodb.net/
+```
 ## Usage
 
 After completing the environment configuration and dependency installation, you can run:
@@ -45,4 +52,4 @@ models includes interfaces describing the composition of data types like the dat
 
 routes determine how a response to a client request at a particular endpoint will respond. It contains the Uniform Resource Identifier (URI) and the specific HTTP request method.
 
-services contains methods regarding getting, adding, updating and deleting product, user, order information from the database
+services contains methods regarding getting, adding, updating and deleting product, user, order information from the database.
