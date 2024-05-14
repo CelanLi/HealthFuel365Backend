@@ -65,7 +65,6 @@ export async function getAllProducts(req: Request, res: Response) {
 
 export async function addShoppingCart(req: Request, res: Response) {
   const { shoppingCartID, productID } = req.params;
-  console.log("add shopping Cart runs");
   try {
     if (!shoppingCartID || typeof shoppingCartID != "string" || !productID || typeof productID != "string") {
       return res.status(400).json(badRequestErrorMessage("Missing query parameter name"));

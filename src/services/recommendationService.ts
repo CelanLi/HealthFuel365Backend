@@ -48,8 +48,8 @@ export const findRecommendations = async (): Promise<
 
   /* these information can be searched in product collection */
   const commonConditions = {
-    nutriScore: { $in: ["A", "B", "C"] },
-    capacity: { $gt: 0 },
+    // nutriScore: { $in: ["A", "B", "C"] },
+    // capacity: { $gt: 0 },
     productID: { $in: productIds },
   };
 
@@ -81,7 +81,8 @@ export const findRecommendationsWithCookies = async (
     // get randomized recommendations
     return getRandomizedRecommendations(productList);
   }
-  return null;
+  // if null, get randomized recommendations
+  return findRecommendations();
 };
 
 export const getRecommendationListById = async (
@@ -95,14 +96,16 @@ export const getRecommendationListById = async (
   const recommendationList = recommendation?.recommendationList;
 
   // if recommendation list is not null, return.
-  if (recommendation && recommendationList) {
+  if (recommendationList?.length != 0) {
+    console.log("return recommendation list")
     return recommendationList;
   }
   // else, generate recommendation list and get again.
-  else {
-    await generateRecommendationList(_id);
-    return getRecommendationListById(_id);
-  }
+  console.log("Generating recommendation list");
+  await generateRecommendationList(_id);
+
+  // Retrieve the recommendation list again
+  return getRecommendationListById(_id);
 };
 
 /* randomly return 12 recommendations */
@@ -263,9 +266,9 @@ export const generateRecommendationList = async (
           { sugarLevel: "high" },
         ],
       },
-      { $and: [{ fatLevel: "high" }, { saltLevel: "high" }] },
-      { $and: [{ fatLevel: "high" }, { sugarLevel: "high" }] },
-      { $and: [{ saltLevel: "high" }, { sugarLevel: "high" }] },
+      // { $and: [{ fatLevel: "high" }, { saltLevel: "high" }] },
+      // { $and: [{ fatLevel: "high" }, { sugarLevel: "high" }] },
+      // { $and: [{ saltLevel: "high" }, { sugarLevel: "high" }] },
     ],
   };
 
