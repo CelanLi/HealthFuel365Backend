@@ -1,9 +1,7 @@
 import pandas as pd
 import product
 
-# map for the productdetail schema
-
-
+# 1. map for the productdetail schema
 def map_columns_name(input_csv_file, output_csv_file):
     df = pd.read_csv(input_csv_file)
     df = product.filter(df)
@@ -104,10 +102,10 @@ def map_columns_name(input_csv_file, output_csv_file):
     df = df[selected_columns]
     df.to_csv(output_csv_file, index=False)
 
-
+# 2. join the mapped details with formatted products data generated in product.py
 def productDetailJoin(
     brandFile, formattedData, output_csv_file
-):  # join the details with formatted products data generated in product.py
+):
     df1 = pd.read_csv(brandFile, dtype=str)
     df2 = pd.read_csv(formattedData, dtype=str)
     merged_df = pd.merge(df1, df2, on="productID")

@@ -1,8 +1,6 @@
 import pandas as pd
 
-# used to transform the format and drop unneccessary columns and NAs
-
-
+# 1. used to transform the format and drop unneccessary columns and NAs
 def remove_columns_and_export(xlsx_file, columns_to_keep, columns_non_empty, csv_file):
     # read xlsx file to df
     df = pd.read_excel(xlsx_file)
@@ -16,8 +14,6 @@ def remove_columns_and_export(xlsx_file, columns_to_keep, columns_non_empty, csv
 
     # export to csv file
     df.to_csv(csv_file, index=False)
-
-
 columns_to_keep = ['code', 'lc', 'product_name_en', 'quantity', 'serving_size',
                    'brands', 'brands_tags', 'categories', 'categories_tags',
                    'labels', 'labels_tags', 'countries', 'countries_tags',
@@ -29,13 +25,10 @@ columns_to_keep = ['code', 'lc', 'product_name_en', 'quantity', 'serving_size',
                    'off:food_groups', 'off:nova_groups', 'off:nova_groups_tags', 'off:nutriscore_grade',
                    'off:nutriscore_score', 'data_sources'
                    ]
-
 columns_non_empty = ['code', 'product_name_en', 'brands', 'categories', 'fat_value', 'fat_unit',
                      'sugars_value', 'sugars_unit', 'salt_value', 'salt_unit', 'off:nutriscore_grade']
 
-# map for the product schema
-
-
+# 2. map for the product schema
 def map_columns_name(input_csv_file, output_csv_file, brandName):
     df = pd.read_csv(input_csv_file)
     # filter
@@ -76,8 +69,6 @@ def map_columns_name(input_csv_file, output_csv_file, brandName):
     df.to_csv(output_csv_file, index=False)
 
 # Hilfer method for map_columns_name(input_csv_file, output_csv_file, brandName)
-
-
 def category_mapping(categories):
     if (
         "Snacks" in categories
@@ -112,10 +103,10 @@ def category_mapping(categories):
     else:
         return "unknown"
 
-
+# 3. format the data from openfoodfacts into the format consistent to the model in mongodb
 def formatOpenFoodFactsData(
     df_csv1, output_csv_file, index=False
-):  # format the data from openfoodfacts into the format consistent to the model in mongodb
+):
     df = pd.read_csv(df_csv1, dtype=str)
     df.rename(
         columns={
@@ -133,7 +124,7 @@ def formatOpenFoodFactsData(
     df1["imageUrl"] = df.apply(generate_image_url, axis=1)
     df1.to_csv(output_csv_file, index=False)
 
-
+# Hilfer Method for formatOpenFoodFactsData(df_csv1, output_csv_file, index=False):
 def generate_image_url(row):  # use the following rules to get possibile imageurl
     # most imageurl are based on the ean (barcode) and rev
     ean = row["productID"]
@@ -170,7 +161,7 @@ def generate_image_url(row):  # use the following rules to get possibile imageur
             )
     return image_url
 
-
+# 4. join column generate single final product data
 def join_column_name(csv_file1, csv_file2, output_csv_file):
     df1 = pd.read_csv(csv_file1, dtype=str)
     df2 = pd.read_csv(csv_file2, dtype=str)
