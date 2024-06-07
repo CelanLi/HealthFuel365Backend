@@ -13,7 +13,6 @@ export async function getRecommendations(req: Request, res: Response) {
           message: `Recommendations not found!`,
         });
       }
-    //   console.log(recommendations);
       return res.status(200).json(recommendations);
       }catch (error) {
       return res.status(500).json(internalServerErrorMessage);

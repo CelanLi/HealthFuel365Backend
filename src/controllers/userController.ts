@@ -18,13 +18,6 @@ import {
   findPromododeByCode,
 } from "../services/orderService";
 
-import user from "../models/user";
-import {
-  ConnectionClosedEvent,
-  MongoUnexpectedServerResponseError,
-} from "mongodb";
-import order, { OrderSchema } from "../models/order";
-import promocode from "../models/promocode";
 import { generateRecommendationList } from "../services/recommendationService";
 
 export async function register(req: Request, res: Response) {
